@@ -116,13 +116,13 @@ startup
 		string exePath = proc.MainModuleWow64Safe().FileName;
 		string hashInHex;
 		using (var sha256 = System.Security.Cryptography.SHA256.Create())
-    	{
-        	using (var stream = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-        	{
-            		var hash = sha256.ComputeHash(stream);
-					hashInHex = BitConverter.ToString(hash).Replace("-", "");
-        	}
-    	}
+    		{
+        		using (var stream = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        		{
+            			var hash = sha256.ComputeHash(stream);
+				hashInHex = BitConverter.ToString(hash).Replace("-", "");
+        		}
+    		}
 		switch(hashInHex)
 		{
 			case "E8F9A7FE42058DE8D4F10672EBA5DBFA3C34EDB2D1F1BA12ADB93321C8F2A7E0":
