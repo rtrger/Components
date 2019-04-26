@@ -102,8 +102,8 @@ startup
 	settings.SetToolTip("dig", "Tick this if you're heading to Tomb of Ancients and you want a split point as The Archaeological Dig level ends.");
 	settings.SetToolTip("dig2", "Tick this if you're heading to Galleries Under Siege and you want a split point as The Archaeological Dig level ends.");
 	settings.SetToolTip("bouchard", "Tick this if you want a split point as you leave to St. Aicard's Church from Bouchard's Hideout.");
-	settings.Add("error", true, "Show error message if launching an unsupported executable.");
-	settings.SetToolTip("error", "Uncheck this if you don't want the message box with the \"Unsupported executable!...\" to show up again.");
+	settings.Add("info", true, "Show error message if launching an unsupported executable.");
+	settings.SetToolTip("info", "Uncheck this if you don't want the message box with the \"Unsupported executable!...\" to show up again.");
 
 	// This array is for preventing splitting multiple times on the same split point.
 	vars.hasSplit = new bool[vars.levelInfo.Length];
@@ -276,7 +276,10 @@ init
 	// Version is unsupported = we don't know where the functions are. So we leave the exe alone in that case.
 	if(version == "Unsupported")
 	{
-		vars.ShowInfoMessage();
+		if(settings[info])
+		{
+			vars.ShowInfoMessage();
+		}
 	}
 	else
 	{
