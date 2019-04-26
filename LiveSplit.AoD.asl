@@ -276,7 +276,7 @@ init
 	// Version is unsupported = we don't know where the functions are. So we leave the exe alone in that case.
 	if(version == "Unsupported")
 	{
-		if(settings[info])
+		if(settings["info"])
 		{
 			vars.ShowInfoMessage();
 		}
