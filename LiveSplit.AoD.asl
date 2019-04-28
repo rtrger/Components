@@ -278,6 +278,7 @@ startup
 
 init
 {
+	Thread.Sleep(2000); // Waiting a bit so the game can boot.
 	version = vars.DetermineVersion(game);
 
 	// Version is unsupported = we don't know where the functions are. So we leave the exe alone in that case.
@@ -290,7 +291,6 @@ init
 	}
 	else
 	{
-		Thread.Sleep(1000); // Waiting a bit so the game can boot.
 		vars.SetPointers(version);		
 		vars.loadingPtr = game.AllocateMemory(sizeof(int));
 		vars.loadingPtrBytes = BitConverter.GetBytes((uint)vars.loadingPtr);
