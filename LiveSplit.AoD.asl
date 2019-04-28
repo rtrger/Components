@@ -16,9 +16,16 @@ state("TRAOD_P4", "P4.exe, v52J")
 	string30 mapName: 0x49B64A;
 }
 
+state("TRAOD_P4", "Unsupported")
+{
+}
+
+state("TRAOD_P3", "Unsupported")
+{
+}
+
 state("TRAOD", "Unsupported")
 {
-	// This is only here so LiveSplit can show a message to those who launched the game with an unsupported exe.
 }
 
 start
