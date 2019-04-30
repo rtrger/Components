@@ -16,18 +16,6 @@ state("TRAOD_P4", "P4.exe, v52J")
 	string30 mapName: 0x49B64A;
 }
 
-state("TRAOD_P4", "Unsupported")
-{
-}
-
-state("TRAOD_P3", "Unsupported")
-{
-}
-
-state("TRAOD", "Unsupported")
-{
-}
-
 start
 {
 	return (old.gameAction == 1 && current.gameAction == 0);
