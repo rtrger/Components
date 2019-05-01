@@ -132,63 +132,6 @@ startup
 				return "Unsupported";
 		}
 	});
-	
-	vars.ShowInfoMessage = (Action)(() =>
-	{
-		var infMsg = new Form
-		{
-			Text = "LiveSplit script for Angel of Darkness",
-			FormBorderStyle = FormBorderStyle.FixedDialog,
-			Size = new System.Drawing.Size(435, 164),
-			MaximizeBox = false,
-			MinimizeBox = false,
-			StartPosition = FormStartPosition.CenterScreen,
-			TopMost = true,
-			BackColor = System.Drawing.Color.FromName("White")
-		};
-		var ok = new Button
-		{
-			Text = "OK",
-			DialogResult = DialogResult.OK,
-			BackColor = System.Drawing.Color.FromArgb(0xE1E1E1)
-		};
-		ok.Location = new System.Drawing.Point((infMsg.ClientSize.Width-ok.Width)/2, 3*infMsg.ClientSize.Height/4);
-		infMsg.AcceptButton = ok;
-		// Splitting up the two sentences due to aesthetic purposes.
-		var snt1P1 = new Label
-		{
-			Text = "Unsupported executable! Please use TRAOD_P3.exe (v49, or the Japanese version), ",
-			AutoSize = false,
-			Bounds = new System.Drawing.Rectangle(5, 6, 420, 13)
-		};
-		var snt1P2 = new Label
-		{
-			Text = "or use TRAOD_P4.exe from the Japanese version.",
-			AutoSize = false,
-			Bounds = new System.Drawing.Rectangle(6, 24, 420, 13)
-		};
-		var snt2 = new Label
-		{
-			Text = "For more information, visit ",
-			Bounds = new System.Drawing.Rectangle(6, 60, 126, 12)
-		};
-		var snt2Link = new LinkLabel
-		{
-			Text = " speedrun.com: AoD Autosplitter Setup Guide.",
-			LinkArea = new LinkArea(1, 43),
-			Bounds = new System.Drawing.Rectangle(126, 60, 300, 12)
-		};
-		snt2Link.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler((sender, e) =>
-		{
-			System.Diagnostics.Process.Start("https://www.speedrun.com/traod/guide/vvcm2");
-		});
-		infMsg.Controls.AddRange(new Control[]{ok, snt1P1, snt1P2, snt2, snt2Link});
-		infMsg.ShowDialog();
-		if(ok.DialogResult == DialogResult.OK)
-		{
-			infMsg.Close();
-		}
-	});
 
 	vars.SetPointers = (Action<string>)(gameVer =>
 	{
@@ -270,14 +213,7 @@ init
 	version = vars.DetermineVersion(game);
 
 	// Version is unsupported = we don't know where the functions are. So we leave the exe alone in that case.
-	if(version == "Unsupported")
-	{
-		if(settings["info"])
-		{
-			vars.ShowInfoMessage();
-		}
-	}
-	else
+	if(version != "Unsupported")
 	{
 		vars.SetPointers(version);		
 		vars.loadingPtr = game.AllocateMemory(sizeof(int));
