@@ -1,16 +1,16 @@
-state("TRAOD_P3", "P3.exe, v49")
+state("TRAOD_P3", "TRAOD_P3.exe, v49")
 {
 	byte gameAction: 0x3A5104;
 	string30 mapName: 0x44F44A;
 }
 
-state("TRAOD_P3", "P3.exe, v52J")
+state("TRAOD_P3", "TRAOD_P3.exe, v52J")
 {
 	byte gameAction: 0x3E0B04;
 	string30 mapName: 0x48AE0A;
 }
 
-state("TRAOD_P4", "P4.exe, v52J")
+state("TRAOD_P4", "TRAOD_P4.exe, v52J")
 {
 	byte gameAction: 0x3F1344;
 	string30 mapName: 0x49B64A;
@@ -30,18 +30,14 @@ split
 {
 	if(vars.newLevelLoading)
 	{
-		vars.doSplit = false;
-		
 		for(int i = 0; i < vars.levelInfo.Length; i++)
 		{
 			if(settings[vars.levelInfo[i].Item2] == true && old.mapName == vars.levelInfo[i].Item3 && current.mapName == vars.levelInfo[i].Item4 && vars.hasSplit[i] == false)
 			{
-				vars.doSplit = true;
 				vars.hasSplit[i] = true;
+				return true;
 			}
 		}
-
-		return vars.doSplit;
 	}
 }
 
@@ -52,7 +48,6 @@ startup
 
 	// Data for autosplitting. If you want a new split point, just add a new tuple to this array.
 	// Each tuple is built the following way: TC(<levelname shown in LS' settings>, <settings name>, <file name of the map you leave>, <file name of the map you enter>).
-	// The array is in vars so it can be reached outside startup's scope.
 	vars.levelInfo = new Tuple<string, string, string, string>[]
 	{
 		TC("Parisian Back Streets", "backstreets", "PARIS1.GMX", "PARIS1A.GMX"),
@@ -104,9 +99,16 @@ startup
 	// This variable is used to prevent splits outside non-savegame loading screens.
 	vars.newLevelLoading = new bool();
 
-	vars.DetermineVersion = (Func<Process, string>)(proc =>
+	// Rest of the startup block contains various function declarations.
+
+	vars.DetermineExeVersion = (Func<Process, string>)(proc =>
 	{
 		string exePath = proc.MainModuleWow64Safe().FileName;
+		// Sometimes the line above gets ntdll as the main module. The exception is thrown to restart the init block.
+		if(!exePath.Contains(".exe"))
+		{
+			throw new Exception("Couldn't find exe module.");
+		}
 		string hashInHex;
 		using (var sha256 = System.Security.Cryptography.SHA256.Create())
     		{
@@ -118,36 +120,48 @@ startup
     		}
 		switch(hashInHex)
 		{
+			case "13BB9733D08B08C47EE2CD13738C65640BE303646955DE0F2B463CDD879F9BFA":
+				return "TRAOD.exe, v49";
 			case "E8F9A7FE42058DE8D4F10672EBA5DBFA3C34EDB2D1F1BA12ADB93321C8F2A7E0":
-				return "P3.exe, v49";
+				return "TRAOD_P3.exe, v49";
 			case "24E557D61536C486208C072B45DE09E8463F93AFBA6B74BF3EA0DE9A3C4FE68C":
-				return "P3.exe, v49"; // AMD fix
+				return "TRAOD_P3.exe, v49"; // AMD fix
+			case "2F0FBA16B2B766C39625E88714670B8E5BB464FBFA0185C1B59F473E4AA755B1":
+				return "TRAOD_P4.exe, v49";
+			case "0BE26792C46A7BFDDD232F8FBE5AD18110D9E6DE0D031CE71D0E68A26559E68F":
+				return "TRAOD.exe, v52";
+			case "E221D8E2644B8364CF92FCF6B2F9A2160902C5CAAF2D7EB2B8BA60AE303A1AD3":
+				return "TRAOD_P3.exe, v52";
+			case "4B9CDFF3745480F25EECD4F865EE51CC3480599089B41A4B908B90C6CB45C63B":
+				return "TRAOD_P4.exe, v52";
+			case "885E50D8D59A9ACF20D07B7122902E0C175018D0DE16C00B72FF733853C7F23F":
+				return "TRAOD.exe, v52J";
 			case "AD691745992E4A646AF9C58495828466D7BCC42D087B6A89109EB8B0E09BAD1F":
-				return "P3.exe, v52J";
+				return "TRAOD_P3.exe, v52J";
 			case "6CAD85F5C287762CCC5F355AE86BD644AD5423B30CEC262538CF69FDFFE499A9":
-				return "P4.exe, v52J";
+				return "TRAOD_P4.exe, v52J";
 			default:	
-				return "Unsupported";
+				return "Unrecognized";
 		}
 	});
 
 	vars.SetPointers = (Action<string>)(gameVer =>
 	{
-		if(gameVer == "P3.exe, v49")
+		if(gameVer == "TRAOD_P3.exe, v49")
 		{
 			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x52EE7A), new IntPtr(0x52CB90)};
 			vars.sysBeginLoadingScreen = new IntPtr(0x42CAC8);
 			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52F20E), new IntPtr(0x52CBC5)};
 			vars.sysEndLoadingScreen = new IntPtr(0x42CB74);
 		}
-		else if(gameVer == "P3.exe, v52J")
+		else if(gameVer == "TRAOD_P3.exe, v52J")
 		{
 			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x52A030), new IntPtr(0x52C046)};
 			vars.sysBeginLoadingScreen = new IntPtr(0x42BFA8);
 			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52A072), new IntPtr(0x52C39E)};
 			vars.sysEndLoadingScreen = new IntPtr(0x42C054);
 		}
-		else if(gameVer == "P4.exe, v52J")
+		else if(gameVer == "TRAOD_P4.exe, v52J")
 		{
 			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x53191A), new IntPtr(0x52F8F8)};
 			vars.sysBeginLoadingScreen = new IntPtr(0x42D630);
@@ -207,11 +221,10 @@ startup
 
 init
 {
-	Thread.Sleep(2000); // Waiting a bit so the game can boot.
-	version = vars.DetermineVersion(game);
+	version = vars.DetermineExeVersion(game);
 
 	// Version is unsupported = we don't know where the functions are. So we leave the exe alone in that case.
-	if(version != "Unsupported")
+	if(version != "Unrecognized")
 	{
 		vars.SetPointers(version);		
 		vars.loadingPtr = game.AllocateMemory(sizeof(int));
@@ -222,7 +235,7 @@ init
 
 update
 {
-	if(version == "Unsupported")
+	if(version == "Unrecognized")
 	{
 		return false;
 	}
@@ -259,7 +272,7 @@ isLoading
 shutdown
 {
 	// Restoring game code and freeing all allocated memory.
-	if(version != "Unsupported" && game != null)
+	if(version != "Unrecognized" && game != null)
 	{
 		game.Suspend();
 
