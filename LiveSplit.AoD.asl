@@ -355,11 +355,11 @@ shutdown
 	}
 }
 
-// gameAction values:
-	// 0: Main menu, in-game (while you can move around), during conversations, during cutscenes, during the intro FMVs before the menu, and during the Karel reveal FMV.
+// gameAction (the name comes from the symbol files) values:
+	// 0: Main menu, in-game, during conversations, during cutscenes, during the intro FMVs before the menu, and during the Karel reveal FMV.
 	// 1: After pressing New Game, during the FMV and during the loading screen following the FMV.
 	// 2: During savegame loads.
-	// 3: During the FMV at the end of Siege and during loads which are after a level's EoL trigger.
+	// 3: During the FMV at the end of Siege, during loads which are after a level's EoL trigger, and during the fadeouts after activating an EoL trigger with Lara or Kurtis.
 	// 4: During exiting to the main menu.
 	// 5: During loads after cutscene levels.
 	// 6: Cutscene level loads and during the fadeouts before cutscenes.
