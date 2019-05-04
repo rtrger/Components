@@ -1,7 +1,43 @@
+state("TRAOD", "TRAOD.exe, v49")
+{
+	byte gameAction: 0x46D348;
+	string30 mapName: 0x4BC06A;
+}
+
 state("TRAOD_P3", "TRAOD_P3.exe, v49")
 {
 	byte gameAction: 0x3A5104;
 	string30 mapName: 0x44F44A;
+}
+
+state("TRAOD_P4", "TRAOD_P4.exe, v49")
+{
+	byte gameAction: 0x3B5A44;
+	string30 mapName: 0x45FD8A;
+}
+
+state("TRAOD", "TRAOD.exe, v52")
+{
+	byte gameAction: 0x46E208;
+	string30 mapName: 0x4BCF2A;
+}
+
+state("TRAOD_P3", "TRAOD_P3.exe, v52")
+{
+	byte gameAction: 0x3A5144;
+	string30 mapName: 0x44F48A;
+}
+
+state("TRAOD_P4", "TRAOD_P4.exe, v52")
+{
+	byte gameAction: 0x3B6A84;
+	string30 mapName: 0x460DCA;
+}
+
+state("TRAOD", "TRAOD.exe, v52J")
+{
+	byte gameAction: 0x4A25FC;
+	string30 mapName: 0x4F138A;
 }
 
 state("TRAOD_P3", "TRAOD_P3.exe, v52J")
@@ -39,6 +75,9 @@ split
 			}
 		}
 	}
+	
+	// Final split (doesn't occur when the game loads a new level so has to be handled separately).
+	return(settings["eckhardt"] && old.mapName == "PRAGUE6.GMX" && current.mapName == "FRONTEND.GMX"); 
 }
 
 startup
@@ -79,8 +118,7 @@ startup
 		TC("Aquatic Research Area", "aqua", "PRAGUE3A.GMX", "PRAGUE5.GMX"),
 		TC("Vault of Trophies", "vault", "CUTSCENE\\CS_13_9.GMX", "PRAGUE5A.GMX"),
 		TC("Boaz Returns", "boaz", "CUTSCENE\\CS_14_6.GMX", "PRAGUE6A.GMX"),
-		TC("The Lost Domain", "domain", "PRAGUE6A.GMX", "PRAGUE6.GMX"),
-		TC("Eckhardt's Lab", "eckhardt", "PRAGUE6.GMX", "FRONTEND.GMX")
+		TC("The Lost Domain", "domain", "PRAGUE6A.GMX", "PRAGUE6.GMX")
 	};
 
 	settings.Add("autosplit", true, "Split automatically at the end of:");
@@ -88,6 +126,7 @@ startup
 	{
 		settings.Add(levelTuple.Item2, false, levelTuple.Item1, "autosplit");
 	}
+	settings.Add("eckhardt", true, "Eckhardt's Lab", "autosplit");
 	settings.SetToolTip("boaz", "This is Vault of Trophies' end in the any% route.");
 	settings.SetToolTip("dig", "Tick this if you're heading to Tomb of Ancients and you want a split point as The Archaeological Dig level ends.");
 	settings.SetToolTip("dig2", "Tick this if you're heading to Galleries Under Siege and you want a split point as The Archaeological Dig level ends.");
@@ -98,24 +137,22 @@ startup
 
 	// This variable is used to prevent splits outside non-savegame loading screens.
 	vars.newLevelLoading = new bool();
+	
+	// See the update block why this is needed.
+	vars.currPhase = timer.CurrentPhase;
 
 	// Rest of the startup block contains various function declarations.
 
-	vars.DetermineExeVersion = (Func<Process, string>)(proc =>
+	vars.DetermineVersion = (Func<Process, string>)(proc =>
 	{
-		string exePath = proc.MainModuleWow64Safe().FileName;
-		// Sometimes the line above gets ntdll as the main module. The exception is thrown to restart the init block.
-		if(!exePath.Contains(".exe"))
-		{
-			throw new Exception("Couldn't find exe module.");
-		}
+		string exePath = proc.ModulesWow64Safe().First(mod => mod.FileName.EndsWith(".exe")).FileName;
 		string hashInHex;
 		using (var sha256 = System.Security.Cryptography.SHA256.Create())
     		{
         		using (var stream = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
         		{
-            			var hash = sha256.ComputeHash(stream);
-				hashInHex = BitConverter.ToString(hash).Replace("-", "");
+            		var hash = sha256.ComputeHash(stream);
+					hashInHex = BitConverter.ToString(hash).Replace("-", "");
         		}
     		}
 		switch(hashInHex)
@@ -147,12 +184,54 @@ startup
 
 	vars.SetPointers = (Action<string>)(gameVer =>
 	{
-		if(gameVer == "TRAOD_P3.exe, v49")
+		if(gameVer == "TRAOD.exe, v49")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x504F36), new IntPtr(0x5029E8)}; 
+			vars.sysBeginLoadingScreen = new IntPtr(0x425630);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x504F52), new IntPtr(0x502A1A)};
+			vars.sysEndLoadingScreen = new IntPtr(0x425A00);
+		}
+		else if(gameVer == "TRAOD_P3.exe, v49")
 		{
 			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x52EE7A), new IntPtr(0x52CB90)};
 			vars.sysBeginLoadingScreen = new IntPtr(0x42CAC8);
 			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52F20E), new IntPtr(0x52CBC5)};
 			vars.sysEndLoadingScreen = new IntPtr(0x42CB74);
+		}
+		else if(gameVer == "TRAOD_P4.exe, v49")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x5345E2), new IntPtr(0x5322B3)};
+			vars.sysBeginLoadingScreen = new IntPtr(0x42E368);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x534992), new IntPtr(0x5322E8)};
+			vars.sysEndLoadingScreen = new IntPtr(0x42E414);
+		}
+		else if(gameVer == "TRAOD.exe, v52")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x504C36), new IntPtr(0x5026F8)};
+			vars.sysBeginLoadingScreen = new IntPtr(0x425510);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x504C52), new IntPtr(0x50272A)};
+			vars.sysEndLoadingScreen = new IntPtr(0x4258E0);
+		}
+		else if(gameVer == "TRAOD_P3.exe, v52")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x52C98C), new IntPtr(0x52EC72)};
+			vars.sysBeginLoadingScreen = new IntPtr(0x42C9F4);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52F002), new IntPtr(0x52C9C1)};
+			vars.sysEndLoadingScreen = new IntPtr(0x42CAA0);
+		}
+		else if(gameVer == "TRAOD_P4.exe, v52")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x5320AF), new IntPtr(0x5343DA)};
+			vars.sysBeginLoadingScreen = new IntPtr(0x42E1F8);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x5320E4), new IntPtr(0x534786)};
+			vars.sysEndLoadingScreen = new IntPtr(0x42E2A4);
+		}
+		else if(gameVer == "TRAOD.exe, v52J")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x502CA6), new IntPtr(0x5009C7)};
+			vars.sysBeginLoadingScreen = new IntPtr(0x424DB0);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x502CC2), new IntPtr(0x5009F9)};
+			vars.sysEndLoadingScreen = new IntPtr(0x425180);
 		}
 		else if(gameVer == "TRAOD_P3.exe, v52J")
 		{
@@ -202,7 +281,7 @@ startup
 		// There is one sysBeginLoadingScreen-sysEndLoadingScreen call pair for cutscene level loads and one for normal level loads.
 		for(int i = 0; i < 2; i++)
 		{
-			vars.sBLSDetFuncPtrs[i] = proc.AllocateMemory(sBLSDetBy.Length);
+			vars.sBLSDetFuncPtrs[i] = proc.AllocateMemory(sBLSDetBy.Length); // Deallocated in shutdown.
 			proc.WriteBytes((IntPtr)vars.sBLSDetFuncPtrs[i], sBLSDetBy);
 			proc.WriteCallInstruction(IntPtr.Add((IntPtr)vars.sBLSDetFuncPtrs[i], 10), sBLS); // Writing the CALL to the CALL placeholder.
 			proc.WriteJumpInstruction(IntPtr.Add((IntPtr)vars.sBLSDetFuncPtrs[i], 15), IntPtr.Add(beginLoadCalls[i], 5)); // Replacing the JMP placeholder.
@@ -221,9 +300,9 @@ startup
 
 init
 {
-	version = vars.DetermineExeVersion(game);
+	version = vars.DetermineVersion(game);
 
-	// Version is unsupported = we don't know where the functions are. So we leave the exe alone in that case.
+	// Version is unrecognized = we don't know where the functions are. So we do nothing in that case.
 	if(version != "Unrecognized")
 	{
 		vars.SetPointers(version);		
@@ -253,9 +332,10 @@ update
 	}
 	
 	// We want to initialize values whenever the timer stopped, both at auto and non-auto resets.
-	current.timerPhase = timer.CurrentPhase;
+	vars.prevPhase = vars.currPhase;
+	vars.currPhase = timer.CurrentPhase;
 	
-	if(old.timerPhase == TimerPhase.Running && current.timerPhase == TimerPhase.NotRunning)
+	if(vars.prevPhase == TimerPhase.Running && vars.currPhase == TimerPhase.NotRunning)
 	{
 		for(int i = 0; i < vars.hasSplit.Length; i++)
 		{
