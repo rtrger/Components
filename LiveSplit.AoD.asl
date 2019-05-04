@@ -151,8 +151,8 @@ startup
     		{
         		using (var stream = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
         		{
-            		var hash = sha256.ComputeHash(stream);
-					hashInHex = BitConverter.ToString(hash).Replace("-", "");
+            			var hash = sha256.ComputeHash(stream);
+				hashInHex = BitConverter.ToString(hash).Replace("-", "");
         		}
     		}
 		switch(hashInHex)
