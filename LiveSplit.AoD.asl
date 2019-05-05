@@ -85,7 +85,7 @@ startup
 	// This is for writing TC instead of Tuple.Create.
 	Func<string, string, string, string, Tuple<string, string, string, string>> TC = Tuple.Create;
 
-	// Data for autosplitting. If you want a new split point, just add a new tuple to this array.
+	// Data for autosplitting (except to the final split point). If you want a new split point, just add a new tuple to this array.
 	// Each tuple is built the following way: TC(<levelname shown in LS' settings>, <settings name>, <file name of the map you leave>, <file name of the map you enter>).
 	vars.levelInfo = new Tuple<string, string, string, string>[]
 	{
