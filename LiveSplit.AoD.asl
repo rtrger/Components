@@ -269,29 +269,31 @@ startup
 		return sELSCallDetour.ToArray();
 	});
 
-	vars.InstallLoadRemovalHooks = (Action<Process, IntPtr[], IntPtr[], IntPtr, IntPtr, byte[]>)((proc, beginLoadCalls, endLoadCalls, sBLS, sELS, loading) =>
+	vars.InstallLoadRemovalHooks = (Action<Process>)(proc =>
 	{
 		proc.Suspend();
 
 		vars.sBLSDetFuncPtrs = new IntPtr[2];
 		vars.sELSDetFuncPtrs = new IntPtr[2];
-		byte[] sBLSDetBy = vars.CreateBLSDetourBytes(loading);
-		byte[] sELSDetBy = vars.CreateELSDetourBytes(loading);
+		vars.loadingPtr = proc.AllocateMemory(sizeof(int));
+		vars.loadingPtrBytes = BitConverter.GetBytes((uint)vars.loadingPtr);
+		byte[] sBLSDetBy = vars.CreateBLSDetourBytes(vars.loadingPtrBytes);
+		byte[] sELSDetBy = vars.CreateELSDetourBytes(vars.loadingPtrBytes);
 
 		// There is one sysBeginLoadingScreen-sysEndLoadingScreen call pair for cutscene level loads and one for normal level loads.
 		for(int i = 0; i < 2; i++)
 		{
 			vars.sBLSDetFuncPtrs[i] = proc.AllocateMemory(sBLSDetBy.Length); // Deallocated in shutdown.
 			proc.WriteBytes((IntPtr)vars.sBLSDetFuncPtrs[i], sBLSDetBy);
-			proc.WriteCallInstruction(IntPtr.Add((IntPtr)vars.sBLSDetFuncPtrs[i], 10), sBLS); // Writing the CALL to the CALL placeholder.
-			proc.WriteJumpInstruction(IntPtr.Add((IntPtr)vars.sBLSDetFuncPtrs[i], 15), IntPtr.Add(beginLoadCalls[i], 5)); // Replacing the JMP placeholder.
-			proc.WriteJumpInstruction(beginLoadCalls[i], (IntPtr)vars.sBLSDetFuncPtrs[i]);
+			proc.WriteCallInstruction(IntPtr.Add((IntPtr)vars.sBLSDetFuncPtrs[i], 10), (IntPtr)vars.sysBeginLoadingScreen); // Writing the CALL to the CALL placeholder.
+			proc.WriteJumpInstruction(IntPtr.Add((IntPtr)vars.sBLSDetFuncPtrs[i], 15), IntPtr.Add((IntPtr)vars.sBLSCalls[i], 5)); // Replacing the JMP placeholder.
+			proc.WriteJumpInstruction((IntPtr)vars.sBLSCalls[i], (IntPtr)vars.sBLSDetFuncPtrs[i]);
 			
 			vars.sELSDetFuncPtrs[i] = proc.AllocateMemory(sELSDetBy.Length);
 			proc.WriteBytes((IntPtr)vars.sELSDetFuncPtrs[i], sELSDetBy);
-			proc.WriteCallInstruction((IntPtr)vars.sELSDetFuncPtrs[i], sELS);
-			proc.WriteJumpInstruction(IntPtr.Add((IntPtr)vars.sELSDetFuncPtrs[i], 15), IntPtr.Add(endLoadCalls[i], 5));
-			proc.WriteJumpInstruction(endLoadCalls[i], (IntPtr)vars.sELSDetFuncPtrs[i]);
+			proc.WriteCallInstruction((IntPtr)vars.sELSDetFuncPtrs[i], (IntPtr)vars.sysEndLoadingScreen);
+			proc.WriteJumpInstruction(IntPtr.Add((IntPtr)vars.sELSDetFuncPtrs[i], 15), IntPtr.Add((IntPtr)vars.sELSCalls[i], 5));
+			proc.WriteJumpInstruction((IntPtr)vars.sELSCalls[i], (IntPtr)vars.sELSDetFuncPtrs[i]);
 		}
 
 		proc.Resume();
@@ -301,14 +303,12 @@ startup
 init
 {
 	version = vars.DetermineVersion(game);
-
+		
 	// Version is unrecognized = we don't know where the functions are. So we do nothing in that case.
 	if(version != "Unrecognized")
 	{
-		vars.SetPointers(version);		
-		vars.loadingPtr = game.AllocateMemory(sizeof(int));
-		vars.loadingPtrBytes = BitConverter.GetBytes((uint)vars.loadingPtr);
-		vars.InstallLoadRemovalHooks(game, vars.sBLSCalls, vars.sELSCalls, vars.sysBeginLoadingScreen, vars.sysEndLoadingScreen, vars.loadingPtrBytes);
+		vars.SetPointers(version);
+		vars.InstallLoadRemovalHooks(game);
 	}
 }
 
