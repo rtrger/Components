@@ -1,3 +1,39 @@
+state("TRAOD", "TRAOD.exe, v39")
+{
+	byte gameAction: 0x439AB8;
+	string30 mapName: 0x4887EA;
+}
+
+state("TRAOD_P3", "TRAOD_P3.exe, v39")
+{
+	byte gameAction: 0x372A64;
+	string30 mapName: 0x41CDAA;
+}
+
+state("TRAOD_P4", "TRAOD_P4.exe, v39")
+{
+	byte gameAction: 0x3833E4;
+	string30 mapName: 0x42D72A;
+}
+
+state("TRAOD", "TRAOD.exe, v42")
+{
+	byte gameAction: 0x4506C8;
+	string30 mapName: 0x49F3EA;
+}
+
+state("TRAOD_P3", "TRAOD_P3.exe, v42")
+{
+	byte gameAction: 0x37CDE4;
+	string30 mapName: 0x42712A;
+}
+
+state("TRAOD_P4", "TRAOD_P4.exe, v42")
+{
+	byte gameAction: 0x38D724;
+	string30 mapName: 0x437A6A;
+}
+
 state("TRAOD", "TRAOD.exe, v49")
 {
 	byte gameAction: 0x46D348;
@@ -77,7 +113,7 @@ split
 	}
 	
 	// Final split (doesn't occur when the game loads a new level so has to be handled separately).
-	return(settings["eckhardt"] && old.mapName == "PRAGUE6.GMX" && current.mapName == "FRONTEND.GMX"); 
+	return (settings["eckhardt"] && old.mapName == "PRAGUE6.GMX" && current.mapName == "FRONTEND.GMX"); 
 }
 
 startup
@@ -157,6 +193,18 @@ startup
     		}
 		switch(hashInHex)
 		{
+			case "F2564F2CAF957EAC507164D03375527688B09D40B6BEB6E4A8F8C65C67832016":
+				return "TRAOD.exe, v39";
+			case "104A40F706AEA8D4576019608DBCBD6C61E4516CC2EC666ED01E7680B244B22A":
+				return "TRAOD_P3.exe, v39";
+			case "AEDCED942368BBCB2E4B53641C1BFC6575A5F0C2AAFD3BFFEE42D4A6566A6B2C":
+				return "TRAOD_P4.exe, v39";
+			case "3D9D892DE236D533F0E619C1AC4A5C258B1192CB4034333F0FAB957C7FD5C879":
+				return "TRAOD.exe, v42";
+			case "4494B17D051078D23A5EC8FFE2E534C3BFF7990FC426C2F7A32A70614369E1A7":
+				return "TRAOD_P3.exe, v42";
+			case "AB0133965470BFA1D7D923D8615BF65A3EE2C11A53ABE8BB187F63EC4FA837A6":
+				return "TRAOD_P4.exe, v42";
 			case "13BB9733D08B08C47EE2CD13738C65640BE303646955DE0F2B463CDD879F9BFA":
 				return "TRAOD.exe, v49";
 			case "E8F9A7FE42058DE8D4F10672EBA5DBFA3C34EDB2D1F1BA12ADB93321C8F2A7E0":
@@ -184,7 +232,49 @@ startup
 
 	vars.SetPointers = (Action<string>)(gameVer =>
 	{
-		if(gameVer == "TRAOD.exe, v49")
+		if(gameVer == "TRAOD.exe, v39")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x5027D6), new IntPtr(0x500278)};
+			vars.sysBeginLoadingScreen = new IntPtr(0x4244C0);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x5027F2), new IntPtr(0x5002AA)};
+			vars.sysEndLoadingScreen = new IntPtr(0x424890);
+		}
+		else if(gameVer == "TRAOD_P3.exe, v39")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x52C01E), new IntPtr(0x529D34)};
+			vars.sysBeginLoadingScreen = new IntPtr(0x42B4EC);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52C3E2), new IntPtr(0x529D69)};
+			vars.sysEndLoadingScreen = new IntPtr(0x42B598);
+		}
+		else if(gameVer == "TRAOD_P4.exe, v39")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x531522), new IntPtr(0x52F1F7)};
+			vars.sysBeginLoadingScreen = new IntPtr(0x42C9B0);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x531902), new IntPtr(0x52F22C)};
+			vars.sysEndLoadingScreen = new IntPtr(0x42CA5C);
+		}
+		else if(gameVer == "TRAOD.exe, v42")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x5039C6), new IntPtr(0x501468)};
+			vars.sysBeginLoadingScreen = new IntPtr(0x4254C0);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x5039E2), new IntPtr(0x50149A)};
+			vars.sysEndLoadingScreen = new IntPtr(0x425890);
+		}
+		else if(gameVer == "TRAOD_P3.exe, v42")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x52D3EA), new IntPtr(0x52B100)};
+			vars.sysBeginLoadingScreen = new IntPtr(0x42C84C);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52D7AE), new IntPtr(0x52B135)};
+			vars.sysEndLoadingScreen = new IntPtr(0x42C8F8);
+		}
+		else if(gameVer == "TRAOD_P4.exe, v42")
+		{
+			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x532A2A), new IntPtr(0x5306FB)};
+			vars.sysBeginLoadingScreen = new IntPtr(0x42DB20);
+			vars.sELSCalls = new IntPtr[]{new IntPtr(0x532E0A), new IntPtr(0x530730)};
+			vars.sysEndLoadingScreen = new IntPtr(0x42DBCC);
+		}
+		else if(gameVer == "TRAOD.exe, v49")
 		{
 			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x504F36), new IntPtr(0x5029E8)}; 
 			vars.sysBeginLoadingScreen = new IntPtr(0x425630);
