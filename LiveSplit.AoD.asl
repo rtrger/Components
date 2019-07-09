@@ -181,7 +181,7 @@ startup
 
 	vars.DetermineVersion = (Func<Process, string>)(proc =>
 	{
-		string exePath = proc.ModulesWow64Safe().First(mod => mod.FileName.EndsWith(".exe")).FileName;
+		string exePath = proc.ModulesWow64Safe().First(mod => mod.FileName.ToLower().EndsWith(".exe")).FileName;
 		string hashInHex;
 		using (var sha256 = System.Security.Cryptography.SHA256.Create())
     		{
