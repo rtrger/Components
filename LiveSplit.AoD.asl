@@ -113,7 +113,7 @@ split
 		}
 	}
 	
-	// Final split (doesn't occur when the game loads a new level so has to be handled separately).
+	// Final split (doesn't occur when vars.newLevelLoading == 1 so has to be handled separately).
 	return (settings["eckhardt"] && old.mapName == "PRAGUE6.GMX" && current.mapName == "FRONTEND.GMX"); 
 }
 
@@ -178,6 +178,7 @@ startup
 	// See the update block why this is needed.
 	vars.currPhase = timer.CurrentPhase;
 	
+	// This dictionary contains the SHA256 hashes for all known AOD executables.
 	var exeVersions = new Dictionary<string, string>{
 		{"F2564F2CAF957EAC507164D03375527688B09D40B6BEB6E4A8F8C65C67832016", "TRAOD.exe, v39"},
 		{"104A40F706AEA8D4576019608DBCBD6C61E4516CC2EC666ED01E7680B244B22A", "TRAOD_P3.exe, v39"},
