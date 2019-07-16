@@ -178,7 +178,7 @@ startup
 	// All the addresses required for the load removal code injection. The items in the tuple:
 	// - Item1: the version to which the addresses belong in the tuple.
 	// - Item2: the starting address of the function sysBeginLoadingScreen.
-	// - Item3, 4: the calls for sysBeginLoadingScreen which we'll replace with a jump to our code cave.
+	// - Item3, 4: the calls for sysBeginLoadingScreen which we'll replace with jumps to our code caves.
 	// - Item5: the starting address of the function sysEndLoadingScreen.
 	// - Item6, 7: the calls for sysEndLoadingScreen, to be replaced.
 	var injectionAddresses = new Tuple<string, int, int, int, int, int, int>[]
