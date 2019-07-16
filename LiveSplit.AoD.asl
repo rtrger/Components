@@ -119,43 +119,40 @@ split
 
 startup
 {
-	// This is for writing TC instead of Tuple.Create.
-	Func<string, string, string, string, Tuple<string, string, string, string>> TC = Tuple.Create;
-
 	// Data for autosplitting (except for the final split point). If you want a new split point, just add a new tuple to this array.
 	// Each tuple is built the following way: TC(<levelname shown in LS' settings>, <settings name>, <file name of the map you leave>, <file name of the map you enter>).
 	vars.levelInfo = new Tuple<string, string, string, string>[]
 	{
-		TC("Parisian Back Streets", "backstreets", "PARIS1.GMX", "PARIS1A.GMX"),
-		TC("Derelict Apartment Block", "derelict", "PARIS1A.GMX", "PARIS1C.GMX"),
-		TC("Industrial Roof Tops", "industrial", "PARIS1C.GMX", "PARIS1B.GMX"),
-		TC("Margot Carvier's Apartment", "carvier", "PARIS1B.GMX", "PARIS2_1.GMX"),
-		TC("The Serpent Rouge", "serpent", "PARIS2B.GMX", "PARIS2_1.GMX"),
-		TC("St. Aicard's Graveyard", "aicard", "PARIS2G.GMX", "PARIS2H.GMX"),
-		TC("Bouchard's Hideout", "bouchard", "PARIS2H.GMX", "PARIS2E.GMX"),
-		TC("Rennes' Pawnshop", "rennes", "CUTSCENE\\CS_2_51A.GMX", "PARIS3.GMX"),
-		TC("Louvre Storm Drains", "stormdrains", "PARIS3.GMX", "PARIS4.GMX"),
-		TC("Louvre Galleries", "galleries", "PARIS4.GMX", "PARIS5A.GMX"),
-		TC("The Archaeological Dig", "dig", "PARIS5A.GMX", "PARIS5.GMX"),
-		TC("Tomb of Ancients", "ancients", "PARIS5.GMX", "PARIS5_1.GMX"),
-		TC("Neptune's Hall", "neptune", "PARIS5_2.GMX", "PARIS5_1.GMX"),
-		TC("Wrath of the Beast", "beast", "PARIS5_3.GMX", "PARIS5_1.GMX"),
-		TC("The Sanctuary of Flame", "flame", "PARIS5_4.GMX", "PARIS5_1.GMX"),
-		TC("The Breath of Hades", "hades", "PARIS5_5.GMX", "PARIS5_1.GMX"),
-		TC("The Hall of Seasons", "seasons", "PARIS5_1.GMX", "PARIS5.GMX"),
-		TC("Tomb of Ancients (flooded)", "ancients2", "PARIS5.GMX", "PARIS5A.GMX"),
-		TC("The Archaeological Dig", "dig2", "PARIS5A.GMX", "PARIS4A.GMX"),
-		TC("Galleries Under Siege", "siege", "CUTSCENE\\CS_6_21B.GMX", "PARIS6.GMX"),
-		TC("Von Croy's Apartment", "voncroy", "CUTSCENE\\CS_7_19.GMX", "PRAGUE1.GMX"),
-		TC("The Monstrum Crimescene", "crimescene", "CUTSCENE\\CS_9_1.GMX", "PRAGUE2.GMX"),
-		TC("The Strahov Fortress", "strahov", "PRAGUE2.GMX", "PRAGUE3.GMX"),
-		TC("The Bio-Research Facility", "biores", "CUTSCENE\\CS_10_14.GMX", "PRAGUE4.GMX"), 
-		TC("The Sanitarium", "sanitarium", "PRAGUE4.GMX", "PRAGUE4A.GMX"),
-		TC("Maximum Containment Area", "containment", "CUTSCENE\\CS_12_1.GMX", "PRAGUE3A.GMX"),
-		TC("Aquatic Research Area", "aqua", "PRAGUE3A.GMX", "PRAGUE5.GMX"),
-		TC("Vault of Trophies", "vault", "CUTSCENE\\CS_13_9.GMX", "PRAGUE5A.GMX"),
-		TC("Boaz Returns", "boaz", "CUTSCENE\\CS_14_6.GMX", "PRAGUE6A.GMX"),
-		TC("The Lost Domain", "domain", "PRAGUE6A.GMX", "PRAGUE6.GMX")
+		Tuple.Create("Parisian Back Streets", "backstreets", "PARIS1.GMX", "PARIS1A.GMX"),
+		Tuple.Create("Derelict Apartment Block", "derelict", "PARIS1A.GMX", "PARIS1C.GMX"),
+		Tuple.Create("Industrial Roof Tops", "industrial", "PARIS1C.GMX", "PARIS1B.GMX"),
+		Tuple.Create("Margot Carvier's Apartment", "carvier", "PARIS1B.GMX", "PARIS2_1.GMX"),
+		Tuple.Create("The Serpent Rouge", "serpent", "PARIS2B.GMX", "PARIS2_1.GMX"),
+		Tuple.Create("St. Aicard's Graveyard", "aicard", "PARIS2G.GMX", "PARIS2H.GMX"),
+		Tuple.Create("Bouchard's Hideout", "bouchard", "PARIS2H.GMX", "PARIS2E.GMX"),
+		Tuple.Create("Rennes' Pawnshop", "rennes", "CUTSCENE\\CS_2_51A.GMX", "PARIS3.GMX"),
+		Tuple.Create("Louvre Storm Drains", "stormdrains", "PARIS3.GMX", "PARIS4.GMX"),
+		Tuple.Create("Louvre Galleries", "galleries", "PARIS4.GMX", "PARIS5A.GMX"),
+		Tuple.Create("The Archaeological Dig", "dig", "PARIS5A.GMX", "PARIS5.GMX"),
+		Tuple.Create("Tomb of Ancients", "ancients", "PARIS5.GMX", "PARIS5_1.GMX"),
+		Tuple.Create("Neptune's Hall", "neptune", "PARIS5_2.GMX", "PARIS5_1.GMX"),
+		Tuple.Create("Wrath of the Beast", "beast", "PARIS5_3.GMX", "PARIS5_1.GMX"),
+		Tuple.Create("The Sanctuary of Flame", "flame", "PARIS5_4.GMX", "PARIS5_1.GMX"),
+		Tuple.Create("The Breath of Hades", "hades", "PARIS5_5.GMX", "PARIS5_1.GMX"),
+		Tuple.Create("The Hall of Seasons", "seasons", "PARIS5_1.GMX", "PARIS5.GMX"),
+		Tuple.Create("Tomb of Ancients (flooded)", "ancients2", "PARIS5.GMX", "PARIS5A.GMX"),
+		Tuple.Create("The Archaeological Dig", "dig2", "PARIS5A.GMX", "PARIS4A.GMX"),
+		Tuple.Create("Galleries Under Siege", "siege", "CUTSCENE\\CS_6_21B.GMX", "PARIS6.GMX"),
+		Tuple.Create("Von Croy's Apartment", "voncroy", "CUTSCENE\\CS_7_19.GMX", "PRAGUE1.GMX"),
+		Tuple.Create("The Monstrum Crimescene", "crimescene", "CUTSCENE\\CS_9_1.GMX", "PRAGUE2.GMX"),
+		Tuple.Create("The Strahov Fortress", "strahov", "PRAGUE2.GMX", "PRAGUE3.GMX"),
+		Tuple.Create("The Bio-Research Facility", "biores", "CUTSCENE\\CS_10_14.GMX", "PRAGUE4.GMX"), 
+		Tuple.Create("The Sanitarium", "sanitarium", "PRAGUE4.GMX", "PRAGUE4A.GMX"),
+		Tuple.Create("Maximum Containment Area", "containment", "CUTSCENE\\CS_12_1.GMX", "PRAGUE3A.GMX"),
+		Tuple.Create("Aquatic Research Area", "aqua", "PRAGUE3A.GMX", "PRAGUE5.GMX"),
+		Tuple.Create("Vault of Trophies", "vault", "CUTSCENE\\CS_13_9.GMX", "PRAGUE5A.GMX"),
+		Tuple.Create("Boaz Returns", "boaz", "CUTSCENE\\CS_14_6.GMX", "PRAGUE6A.GMX"),
+		Tuple.Create("The Lost Domain", "domain", "PRAGUE6A.GMX", "PRAGUE6.GMX")
 	};
 
 	settings.Add("autosplit", true, "Split automatically at the end of:");
@@ -178,8 +175,34 @@ startup
 	// See the update block why this is needed.
 	vars.currPhase = timer.CurrentPhase;
 	
+	// All the addresses required for the load removal code injection. The items in the tuple:
+	// - Item1: the version to which the addresses belong in the tuple.
+	// - Item2: the starting address of the function sysBeginLoadingScreen.
+	// - Item3, 4: the calls for sysBeginLoadingScreen which we'll replace with a jump to our code cave.
+	// - Item5: the starting address of the function sysEndLoadingScreen.
+	// - Item6, 7: the calls for sysEndLoadingScreen, to be replaced.
+	var injectionAddresses = new Tuple<string, int, int, int, int, int, int>[]
+	{
+		Tuple.Create("TRAOD.exe, v39", 0x4244C0, 0x500278, 0x5027D6, 0x424890, 0x5027F2, 0x5002AA),
+		Tuple.Create("TRAOD_P3.exe, v39", 0x42B4EC, 0x529D34, 0x52C01E, 0x42B598, 0x529D69, 0x52C3E2),
+		Tuple.Create("TRAOD_P4.exe, v39", 0x42C9B0, 0x52F1F7, 0x531522, 0x42CA5C, 0x52F22C, 0x531902),
+		Tuple.Create("TRAOD.exe, v42", 0x4254C0, 0x501468, 0x5039C6, 0x425890, 0x50149A, 0x5039E2),
+		Tuple.Create("TRAOD_P3.exe, v42", 0x42C84C, 0x52B100, 0x52D3EA, 0x42C8F8, 0x52B135, 0x52D7AE),
+		Tuple.Create("TRAOD_P4.exe, v42", 0x42DB20, 0x5306FB, 0x532A2A, 0x42DBCC, 0x530730, 0x532E0A),
+		Tuple.Create("TRAOD.exe, v49", 0x425630, 0x5029E8, 0x504F36, 0x425A00, 0x502A1A, 0x504F52),
+		Tuple.Create("TRAOD_P3.exe, v49", 0x42CAC8, 0x52CB90, 0x52EE7A, 0x42CB74, 0x52CBC5, 0x52F20E),
+		Tuple.Create("TRAOD_P4.exe, v49", 0x42E368, 0x5322B3, 0x5345E2, 0x42E414, 0x5322E8, 0x534992),
+		Tuple.Create("TRAOD.exe, v52", 0x425510, 0x5026F8, 0x504C36, 0x4258E0, 0x50272A, 0x504C52),
+		Tuple.Create("TRAOD_P3.exe, v52", 0x42C9F4, 0x52C98C, 0x52EC72, 0x42CAA0, 0x52C9C1, 0x52F002),
+		Tuple.Create("TRAOD_P4.exe, v52", 0x42E1F8, 0x5320AF, 0x5343DA, 0x42E2A4, 0x5320E4, 0x534786),
+		Tuple.Create("TRAOD.exe, v52J", 0x424DB0, 0x5009C7, 0x502CA6, 0x425180, 0x5009F9, 0x502CC2),
+		Tuple.Create("TRAOD_P3.exe, v52J", 0x42BFA8, 0x52A03D, 0x52C046, 0x42C054, 0x52A072, 0x52C39E),
+		Tuple.Create("TRAOD_P4.exe, v52J", 0x42D630, 0x52F8F8, 0x53191A, 0x42D6DC, 0x52F92D, 0x531C86)
+	};
+	
 	// This dictionary contains the SHA256 hashes for all known AoD executables.
-	var exeVersions = new Dictionary<string, string>{
+	var exeVersions = new Dictionary<string, string>
+	{
 		{"F2564F2CAF957EAC507164D03375527688B09D40B6BEB6E4A8F8C65C67832016", "TRAOD.exe, v39"},
 		{"104A40F706AEA8D4576019608DBCBD6C61E4516CC2EC666ED01E7680B244B22A", "TRAOD_P3.exe, v39"},
 		{"AEDCED942368BBCB2E4B53641C1BFC6575A5F0C2AAFD3BFFEE42D4A6566A6B2C", "TRAOD_P4.exe, v39"},
@@ -226,110 +249,15 @@ startup
 
 	vars.SetPointers = (Action<string>)(gameVer =>
 	{
-		if(gameVer == "TRAOD.exe, v39")
+		foreach(var addressTuple in injectionAddresses)
 		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x5027D6), new IntPtr(0x500278)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x4244C0);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x5027F2), new IntPtr(0x5002AA)};
-			vars.sysEndLoadingScreen = new IntPtr(0x424890);
-		}
-		else if(gameVer == "TRAOD_P3.exe, v39")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x52C01E), new IntPtr(0x529D34)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x42B4EC);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52C3E2), new IntPtr(0x529D69)};
-			vars.sysEndLoadingScreen = new IntPtr(0x42B598);
-		}
-		else if(gameVer == "TRAOD_P4.exe, v39")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x531522), new IntPtr(0x52F1F7)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x42C9B0);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x531902), new IntPtr(0x52F22C)};
-			vars.sysEndLoadingScreen = new IntPtr(0x42CA5C);
-		}
-		else if(gameVer == "TRAOD.exe, v42")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x5039C6), new IntPtr(0x501468)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x4254C0);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x5039E2), new IntPtr(0x50149A)};
-			vars.sysEndLoadingScreen = new IntPtr(0x425890);
-		}
-		else if(gameVer == "TRAOD_P3.exe, v42")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x52D3EA), new IntPtr(0x52B100)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x42C84C);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52D7AE), new IntPtr(0x52B135)};
-			vars.sysEndLoadingScreen = new IntPtr(0x42C8F8);
-		}
-		else if(gameVer == "TRAOD_P4.exe, v42")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x532A2A), new IntPtr(0x5306FB)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x42DB20);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x532E0A), new IntPtr(0x530730)};
-			vars.sysEndLoadingScreen = new IntPtr(0x42DBCC);
-		}
-		else if(gameVer == "TRAOD.exe, v49")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x504F36), new IntPtr(0x5029E8)}; 
-			vars.sysBeginLoadingScreen = new IntPtr(0x425630);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x504F52), new IntPtr(0x502A1A)};
-			vars.sysEndLoadingScreen = new IntPtr(0x425A00);
-		}
-		else if(gameVer == "TRAOD_P3.exe, v49")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x52EE7A), new IntPtr(0x52CB90)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x42CAC8);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52F20E), new IntPtr(0x52CBC5)};
-			vars.sysEndLoadingScreen = new IntPtr(0x42CB74);
-		}
-		else if(gameVer == "TRAOD_P4.exe, v49")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x5345E2), new IntPtr(0x5322B3)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x42E368);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x534992), new IntPtr(0x5322E8)};
-			vars.sysEndLoadingScreen = new IntPtr(0x42E414);
-		}
-		else if(gameVer == "TRAOD.exe, v52")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x504C36), new IntPtr(0x5026F8)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x425510);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x504C52), new IntPtr(0x50272A)};
-			vars.sysEndLoadingScreen = new IntPtr(0x4258E0);
-		}
-		else if(gameVer == "TRAOD_P3.exe, v52")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x52C98C), new IntPtr(0x52EC72)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x42C9F4);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52F002), new IntPtr(0x52C9C1)};
-			vars.sysEndLoadingScreen = new IntPtr(0x42CAA0);
-		}
-		else if(gameVer == "TRAOD_P4.exe, v52")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x5320AF), new IntPtr(0x5343DA)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x42E1F8);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x5320E4), new IntPtr(0x534786)};
-			vars.sysEndLoadingScreen = new IntPtr(0x42E2A4);
-		}
-		else if(gameVer == "TRAOD.exe, v52J")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x502CA6), new IntPtr(0x5009C7)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x424DB0);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x502CC2), new IntPtr(0x5009F9)};
-			vars.sysEndLoadingScreen = new IntPtr(0x425180);
-		}
-		else if(gameVer == "TRAOD_P3.exe, v52J")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x52A030), new IntPtr(0x52C046)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x42BFA8);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52A072), new IntPtr(0x52C39E)};
-			vars.sysEndLoadingScreen = new IntPtr(0x42C054);
-		}
-		else if(gameVer == "TRAOD_P4.exe, v52J")
-		{
-			vars.sBLSCalls = new IntPtr[]{new IntPtr(0x53191A), new IntPtr(0x52F8F8)};
-			vars.sysBeginLoadingScreen = new IntPtr(0x42D630);
-			vars.sELSCalls = new IntPtr[]{new IntPtr(0x52F92D), new IntPtr(0x531C86)};
-			vars.sysEndLoadingScreen = new IntPtr(0x42D6DC);
+			if(gameVer == addressTuple.Item1)
+			{
+				vars.sysBeginLoadingScreen = new IntPtr(addressTuple.Item2);
+				vars.sBLSCalls = new IntPtr[]{new IntPtr(addressTuple.Item3), new IntPtr(addressTuple.Item4)};
+				vars.sysEndLoadingScreen = new IntPtr(addressTuple.Item5);
+				vars.sELSCalls = new IntPtr[]{new IntPtr(addressTuple.Item6), new IntPtr(addressTuple.Item7)};
+			}
 		}
 	});
 
@@ -435,7 +363,6 @@ isLoading
 
 shutdown
 {
-	// Restoring game code and freeing all allocated memory.
 	if(version != "Unrecognized" && game != null)
 	{
 		game.Suspend();
