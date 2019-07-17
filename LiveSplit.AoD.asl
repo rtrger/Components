@@ -175,7 +175,7 @@ startup
 	// See the update block why this is needed.
 	vars.currPhase = timer.CurrentPhase;
 	
-	// All the addresses required for the load removal code injection. The items in the tuple:
+	// All the addresses required for the load removal code injection. The items in one tuple:
 	// - Item1: the version to which the addresses belong in the tuple.
 	// - Item2: the starting address of the function sysBeginLoadingScreen.
 	// - Item3, 4: the calls for sysBeginLoadingScreen which we'll replace with jumps to our code caves.
