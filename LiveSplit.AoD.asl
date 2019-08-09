@@ -70,6 +70,26 @@ state("TRAOD_P4", "TRAOD_P4.exe, v52")
 	string30 mapName: 0x460DCA;
 }
 
+// The exe files on the Russian Noviy Disk (ND) version have the "dat" extension.
+// The addresses (the ones that we use in this script) in the ND version are identical to the ones in the international v52 edition.
+state("TRAOD.dat", "TRAOD.exe, v52")
+{
+	byte gameAction: 0x46E208;
+	string30 mapName: 0x4BCF2A;
+}
+
+state("TRAOD_P3.dat", "TRAOD_P3.exe, v52")
+{
+	byte gameAction: 0x3A5144;
+	string30 mapName: 0x44F48A;
+}
+
+state("TRAOD_P4.dat", "TRAOD_P4.exe, v52")
+{
+	byte gameAction: 0x3B6A84;
+	string30 mapName: 0x460DCA;
+}
+
 state("TRAOD", "TRAOD.exe, v52J")
 {
 	byte gameAction: 0x4A25FC;
@@ -88,39 +108,14 @@ state("TRAOD_P4", "TRAOD_P4.exe, v52J")
 	string30 mapName: 0x49B64A;
 }
 
-start
-{
-	// Documentation of the magic constants can be found at the bottom of this script file.
-	return (old.gameAction == 1 && current.gameAction == 0);
-}
-
-reset
-{
-	return (old.gameAction == 0 && current.gameAction == 1);
-}
-
-split
-{
-	if(vars.newLevelLoading)
-	{
-		for(int i = 0; i < vars.levelInfo.Length; i++)
-		{
-			if(settings[vars.levelInfo[i].Item2] == true && old.mapName == vars.levelInfo[i].Item3 && current.mapName == vars.levelInfo[i].Item4 && vars.hasSplit[i] == false)
-			{
-				vars.hasSplit[i] = true;
-				return true;
-			}
-		}
-	}
-	
-	// Final split (doesn't occur when vars.newLevelLoading == 1 so has to be handled separately).
-	return (settings["eckhardt"] && old.mapName == "PRAGUE6.GMX" && current.mapName == "FRONTEND.GMX"); 
-}
-
 startup
 {
 	// Data for autosplitting (except for the final split point). If you want a new split point, just add a new tuple to this array.
-	// Each tuple is built the following way: TC(<levelname shown in LS' settings>, <settings name>, <file name of the map you leave>, <file name of the map you enter>).
+	// The items in one tuple:
+	// - Item1: name of the level to which the tuple belongs to. This is the string displayed in LiveSplit's settings.
+	// - Item2: name of the setting, used only in this script to access the state of the setting (checked = true or unchecked = false).
+	// - Item3: name of the map file which you leave when the split occurs.
+	// - Item4: name of the map file you enter when the split happens.
 	vars.levelInfo = new Tuple<string, string, string, string>[]
 	{
 		Tuple.Create("Parisian Back Streets", "backstreets", "PARIS1.GMX", "PARIS1A.GMX"),
@@ -172,15 +167,12 @@ startup
 	// This variable is used to prevent splits during loads started from loading a save file.
 	vars.newLevelLoading = new bool();
 	
-	// See the update block why this is needed.
-	vars.currPhase = timer.CurrentPhase;
-	
 	// All the addresses required for the load removal code injection. The items in one tuple:
 	// - Item1: the version to which the addresses belong in the tuple.
 	// - Item2: the starting address of the function sysBeginLoadingScreen.
-	// - Item3, 4: the calls for sysBeginLoadingScreen which we'll replace with jumps to our code caves.
+	// - Item3, 4: addresses containing the calls for sysBeginLoadingScreen which we'll replace with jumps to our code caves.
 	// - Item5: the starting address of the function sysEndLoadingScreen.
-	// - Item6, 7: the calls for sysEndLoadingScreen, to be replaced.
+	// - Item6, 7: addresses containing the calls for sysEndLoadingScreen which we want to replace.
 	var injectionAddresses = new Tuple<string, int, int, int, int, int, int>[]
 	{
 		Tuple.Create("TRAOD.exe, v39", 0x4244C0, 0x500278, 0x5027D6, 0x424890, 0x5027F2, 0x5002AA),
@@ -200,38 +192,41 @@ startup
 		Tuple.Create("TRAOD_P4.exe, v52J", 0x42D630, 0x52F8F8, 0x53191A, 0x42D6DC, 0x52F92D, 0x531C86)
 	};
 	
-	// This dictionary contains the SHA256 hashes for all known AoD executables.
+	// This dictionary contains the MD5 hashes for all AoD executables handled by this script file.
 	var exeVersions = new Dictionary<string, string>
 	{
-		{"F2564F2CAF957EAC507164D03375527688B09D40B6BEB6E4A8F8C65C67832016", "TRAOD.exe, v39"},
-		{"104A40F706AEA8D4576019608DBCBD6C61E4516CC2EC666ED01E7680B244B22A", "TRAOD_P3.exe, v39"},
-		{"AEDCED942368BBCB2E4B53641C1BFC6575A5F0C2AAFD3BFFEE42D4A6566A6B2C", "TRAOD_P4.exe, v39"},
-		{"3D9D892DE236D533F0E619C1AC4A5C258B1192CB4034333F0FAB957C7FD5C879", "TRAOD.exe, v42"},
-		{"4494B17D051078D23A5EC8FFE2E534C3BFF7990FC426C2F7A32A70614369E1A7", "TRAOD_P3.exe, v42"},
-		{"AB0133965470BFA1D7D923D8615BF65A3EE2C11A53ABE8BB187F63EC4FA837A6", "TRAOD_P4.exe, v42"},
-		{"13BB9733D08B08C47EE2CD13738C65640BE303646955DE0F2B463CDD879F9BFA", "TRAOD.exe, v49"},
-		{"E8F9A7FE42058DE8D4F10672EBA5DBFA3C34EDB2D1F1BA12ADB93321C8F2A7E0", "TRAOD_P3.exe, v49"},
-		{"24E557D61536C486208C072B45DE09E8463F93AFBA6B74BF3EA0DE9A3C4FE68C", "TRAOD_P3.exe, v49"}, // AMD fix
-		{"2F0FBA16B2B766C39625E88714670B8E5BB464FBFA0185C1B59F473E4AA755B1", "TRAOD_P4.exe, v49"},
-		{"0BE26792C46A7BFDDD232F8FBE5AD18110D9E6DE0D031CE71D0E68A26559E68F", "TRAOD.exe, v52"},
-		{"E221D8E2644B8364CF92FCF6B2F9A2160902C5CAAF2D7EB2B8BA60AE303A1AD3", "TRAOD_P3.exe, v52"},
-		{"4B9CDFF3745480F25EECD4F865EE51CC3480599089B41A4B908B90C6CB45C63B", "TRAOD_P4.exe, v52"},
-		{"885E50D8D59A9ACF20D07B7122902E0C175018D0DE16C00B72FF733853C7F23F", "TRAOD.exe, v52J"},
-		{"AD691745992E4A646AF9C58495828466D7BCC42D087B6A89109EB8B0E09BAD1F", "TRAOD_P3.exe, v52J"},
-		{"6CAD85F5C287762CCC5F355AE86BD644AD5423B30CEC262538CF69FDFFE499A9", "TRAOD_P4.exe, v52J"}
+		{"784419878ABE05BA02F43BB69DD9547C", "TRAOD.exe, v39"},
+		{"912CC51033F2CD850EA22BDCA1177E1A", "TRAOD_P3.exe, v39"},
+		{"ED2FFB1FE4A1E5623FE640A8BEBF3971", "TRAOD_P4.exe, v39"},
+		{"1713F4F416897CC44D74A7EE15E27E45", "TRAOD.exe, v42"},
+		{"23577E33938443DD4495F87285FBEA2B", "TRAOD_P3.exe, v42"},
+		{"D010CC2342C98FE232604C5394A35F5E", "TRAOD_P4.exe, v42"},
+		{"06E495E9912227B5B271AAC6E7BBA17C", "TRAOD.exe, v49"},
+		{"37074F2BED441D6F51159BC5DDFC9439", "TRAOD_P3.exe, v49"},
+		{"4DB4E66B38FCC674B7D92E99FAE71F00", "TRAOD_P3.exe, v49"},  // AMD fix.
+		{"CB89EAA650A1464DFF4C160240ACF02D", "TRAOD_P4.exe, v49"},
+		{"F8609E81CD0BF26BA170CE038E281195", "TRAOD.exe, v52"},
+		{"4C784198862A840424E494861575CF70", "TRAOD_P3.exe, v52"},
+		{"29B8ABE83BA984754EF0F0ED31F57DD4", "TRAOD_P4.exe, v52"},
+		{"1DEE3F701AB8A3F1DF265F0A59D68A41", "TRAOD.exe, v52"},	    //
+		{"965768EA109C414704A4E2ABA5A7E246", "TRAOD_P3.exe, v52"},  // Russian executables.
+		{"07B47CCDC6AB45951D15AAD76987A498", "TRAOD_P4.exe, v52"},  // 
+		{"A05001AC983D096AC439BCA3F9BAB362", "TRAOD.exe, v52J"},
+		{"867E1741166604D696AFD7F5905F7E11", "TRAOD_P3.exe, v52J"},
+		{"3FB88FBC678BD8EFEB2A6AD6F3AA2CEA", "TRAOD_P4.exe, v52J"}
 	};
 
 	// Rest of the startup block contains various function declarations.
 
 	vars.DetermineVersion = (Func<Process, string>)(proc =>
 	{
-		string exePath = proc.ModulesWow64Safe().First(mod => mod.FileName.ToLower().EndsWith(".exe")).FileName;
+		string exePath = proc.MainModule.FileName; // Why not using MainModuleWow64Safe()? Explained at the bottom of this file.
 		string hashInHex = "0";
-		using (var sha256 = System.Security.Cryptography.SHA256.Create())
+		using (var md5 = System.Security.Cryptography.MD5.Create())
     		{
         		using (var stream = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
         		{
-            			var hash = sha256.ComputeHash(stream);
+            			var hash = md5.ComputeHash(stream);
 				hashInHex = BitConverter.ToString(hash).Replace("-", "");
         		}
     		}
@@ -342,23 +337,45 @@ update
 	{
 		vars.newLevelLoading = false;
 	}
-	
-	// We want to initialize values whenever the timer stopped, both at auto and non-auto resets.
-	vars.prevPhase = vars.currPhase;
-	vars.currPhase = timer.CurrentPhase;
-	
-	if(vars.prevPhase == TimerPhase.Running && vars.currPhase == TimerPhase.NotRunning)
-	{
-		for(int i = 0; i < vars.hasSplit.Length; i++)
-		{
-			vars.hasSplit[i] = false;
-		}
-	}
 }
 
 isLoading
 {
 	return vars.isLoading;
+}
+
+start
+{
+	for(int i = 0; i < vars.hasSplit.Length; i++)
+	{
+		vars.hasSplit[i] = false;
+	}
+	
+	// Documentation of the magic constants can be found at the bottom of this script file.
+	return (old.gameAction == 1 && current.gameAction == 0);
+}
+
+reset
+{
+	return (old.gameAction == 0 && current.gameAction == 1);
+}
+
+split
+{
+	if(vars.newLevelLoading)
+	{
+		for(int i = 0; i < vars.levelInfo.Length; i++)
+		{
+			if(settings[vars.levelInfo[i].Item2] == true && old.mapName == vars.levelInfo[i].Item3 && current.mapName == vars.levelInfo[i].Item4 && vars.hasSplit[i] == false)
+			{
+				vars.hasSplit[i] = true;
+				return true;
+			}
+		}
+	}
+	
+	// Final split (doesn't occur when vars.newLevelLoading == 1 so has to be handled separately).
+	return (settings["eckhardt"] == true && old.mapName == "PRAGUE6.GMX" && current.mapName == "FRONTEND.GMX"); 
 }
 
 shutdown
@@ -407,3 +424,10 @@ shutdown
 	// 10: Just before the Paused menu shows up.
 	// 11: Just before the Game Over menu shows up.
 	// 12: Just before the inventory screen shows up when you sell items to Rennes.
+	
+// MainModuleWow64Safe() - https://github.com/LiveSplit/LiveSplit/blob/master/LiveSplit/LiveSplit.Core/ComponentUtil/ProcessExtensions.cs#L46
+// - It occasionally gets ntdll as the main module.
+// - ModulesWow64Safe() sometimes throw exceptions (invalid handle, Read/WriteProcessMemory fail) when it tries to do things with the 32-bit dll modules.
+// - The exceptions only get thrown if you're on a 64-bit Windows.
+// - ModulesWow64Safe() is called by every ASL script so that's why you sometimes see LiveSplit errors in the Event Viewer about inv. handle or RPM/WPM fail, even if the script contains nothing.
+// - Process.Modules only enumerate the executable module and the 64-bit dlls while ModulesWow64Safe() enumerate both 64 and 32-bit modules and the exe. So the former is enough for me, and it doesn't spam the Event Viewer with error messages. 
