@@ -1,2 +1,2 @@
-$ cat .gitattributes
+# do not have periods in file names otherwise syntax highlight doesn't work
 *.asl linguist-language=csharp
