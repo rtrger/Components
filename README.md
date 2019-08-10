@@ -1,4 +1,3 @@
-# LiveSplit.ASL
-ASL scripts for [LiveSplit](https://github.com/LiveSplit/LiveSplit). The repository contains scripts for the following games:
+Components and scripts for [LiveSplit](https://github.com/LiveSplit/LiveSplit), currently for the following games:
 
 * Tomb Raider: The Angel of Darkness
