@@ -216,8 +216,6 @@ startup
 		{"3FB88FBC678BD8EFEB2A6AD6F3AA2CEA", "TRAOD_P4.exe, v52J"}
 	};
 
-	// Rest of the startup block contains various function declarations.
-
 	vars.DetermineVersion = (Func<Process, string>)(proc =>
 	{
 		string exePath = proc.MainModule.FileName; // Why not using MainModuleWow64Safe()? Explained at the bottom of this file.
@@ -287,7 +285,6 @@ startup
 		byte[] sBLSDetBy = vars.CreateBLSDetourBytes(vars.loadingPtrBytes);
 		byte[] sELSDetBy = vars.CreateELSDetourBytes(vars.loadingPtrBytes);
 
-		// There is one sysBeginLoadingScreen-sysEndLoadingScreen call pair for cutscene level loads and one for normal level loads.
 		for(int i = 0; i < 2; i++)
 		{
 			vars.sBLSDetFuncPtrs[i] = proc.AllocateMemory(sBLSDetBy.Length); // Deallocated in shutdown.
@@ -311,7 +308,6 @@ init
 {
 	version = vars.DetermineVersion(game);
 		
-	// Version is unrecognized = we don't know where the functions are. So we do nothing in that case.
 	if(version != "Unrecognized")
 	{
 		vars.SetPointers(version);
@@ -374,7 +370,7 @@ split
 		}
 	}
 	
-	// Final split (doesn't occur when vars.newLevelLoading == 1 so has to be handled separately).
+	// Final split.
 	return (settings["eckhardt"] == true && old.mapName == "PRAGUE6.GMX" && current.mapName == "FRONTEND.GMX"); 
 }
 
@@ -426,8 +422,8 @@ shutdown
 	// 12: Just before the inventory screen shows up when you sell items to Rennes.
 	
 // MainModuleWow64Safe() - https://github.com/LiveSplit/LiveSplit/blob/master/LiveSplit/LiveSplit.Core/ComponentUtil/ProcessExtensions.cs#L46
-// - It occasionally gets ntdll as the main module.
-// - ModulesWow64Safe() sometimes throw exceptions (invalid handle, Read/WriteProcessMemory fail) when it tries to do things with the 32-bit dll modules.
-// - The exceptions only get thrown if you're on a 64-bit Windows.
-// - ModulesWow64Safe() is called by every ASL script so that's why you sometimes see LiveSplit errors in the Event Viewer about inv. handle or RPM/WPM fail, even if the script contains nothing.
-// - Process.Modules only enumerate the executable module and the 64-bit dlls while ModulesWow64Safe() enumerate both 64 and 32-bit modules and the exe. So the former is enough for me, and it doesn't spam the Event Viewer with error messages. 
+	// - It occasionally gets ntdll as the main module.
+	// - ModulesWow64Safe() sometimes throw exceptions (invalid handle, Read/WriteProcessMemory fail) when it tries to do things with the 32-bit dll modules.
+	// - The exceptions only get thrown if you're on a 64-bit Windows.
+	// - ModulesWow64Safe() is called by every ASL script so that's why you sometimes see LiveSplit errors in the Event Viewer about inv. handle or RPM/WPM fail, even if the script contains nothing.
+	// - Process.Modules only enumerate the executable module and the 64-bit dlls while ModulesWow64Safe() enumerate both 64 and 32-bit modules and the exe.
