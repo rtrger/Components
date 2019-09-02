@@ -1,7 +1,4 @@
-// Version detection doesn't work, module sizes are identical, hashing breaks, don't know why.
-// If you play on the GOG version comment the first state block and uncomment the second one.
-
-state("Mask") // Disc version.
+state("Mask", "Disc")
 {
 	bool loading: 0x21DA28;
 	bool saving: 0x21DBC0;
@@ -9,15 +6,13 @@ state("Mask") // Disc version.
 	bool deadLucreto: 0x1B991C, 0x34;
 }
 
-/*
-state("Mask") // GOG version.
+state("Mask", "GOG")
 {
 	bool loading: 0x21E840;
 	bool saving: 0x21EA18;
 	byte miniMapID: 0x1BE8C8;
 	bool deadLucreto: 0x1BD674, 0x34;
 }
-*/
 
 startup
 {
@@ -37,6 +32,21 @@ startup
 
 init
 {
+	string exePath = game.MainModule.FileName;
+	string hashInHex = "0";
+	using (var md5 = System.Security.Cryptography.MD5.Create())
+    	{
+        	using (var stream = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        	{
+            		var hash = md5.ComputeHash(stream);
+			hashInHex = BitConverter.ToString(hash).Replace("-", "");
+        	}
+    	}
+	if(hashInHex == "28CCCC57D30210070B6A544D7BA8D22F")
+		version = "Disc";
+	else if(hashInHex == "AA5CB6EC79561C97B180B2CC92CFFC26")
+		version = "GOG";
+	
 	vars.prevMapID = vars.currMapID = 0;
 }
 
