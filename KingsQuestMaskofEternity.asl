@@ -33,7 +33,7 @@ startup
 init
 {
 	if(modules.First().ModuleMemorySize == 5038080)
-		version = GOG;
+		version = "GOG";
 	vars.prevMapID = vars.currMapID = 0;
 }
 
