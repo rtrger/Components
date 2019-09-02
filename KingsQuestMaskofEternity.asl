@@ -1,13 +1,39 @@
 state("Mask")
 {
-	bool loading : 0x21E840;
-	bool saving : 0x21EA18;
-	byte miniMapID : 0x1BE8C8;
-	bool deadLucreto : 0x1BD674, 0x34;
+	bool loading: 0x21DA28;
+	bool saving: 0x21DBC0;
+	byte miniMapID: 0x1B6B20;
+	bool deadLucreto: 0x1B991C, 0x34;
+}
+
+state("Mask", "GOG")
+{
+	bool loading: 0x21E840;
+	bool saving: 0x21EA18;
+	byte miniMapID: 0x1BE8C8;
+	bool deadLucreto: 0x1BD674, 0x34;
+}
+
+startup
+{
+	settings.Add("split", true, "Split at entering:");
+	settings.Add("Castle", false, "Castle Daventry", "split");
+	settings.Add("Death", false, "Dimension of Death", "split");
+	settings.Add("Swamp", false, "The Swamp", "split");
+	settings.Add("Gnomes", false, "Underground Realm of the Gnomes", "split");
+	settings.Add("Barren", false, "The Barren Region", "split");
+	settings.Add("Frozen", false, "The Frozen Reaches", "split");
+	settings.Add("Paradise", false, "Paradise Lost", "split");
+	settings.Add("RotS1", false, "Realm of the Sun Level 1", "split");
+	settings.Add("RotS2", false, "Realm of the Sun Level 2", "split");
+	settings.Add("RotS3", false, "Realm of the Sun Level 3", "split");
+	settings.Add("RotSAR", false, "Realm of the Sun Altar Room", "split");
 }
 
 init
 {
+	if(modules.First().ModuleMemorySize == 5038080)
+		version = GOG;
 	vars.prevMapID = vars.currMapID = 0;
 }
 
@@ -44,22 +70,6 @@ split
 	if(!old.deadLucreto && current.deadLucreto && vars.currMapID == 10)
 		return true;
 	
-}
-
-startup
-{
-	settings.Add("split", true, "Split at entering:");
-	settings.Add("Castle", false, "Castle Daventry", "split");
-	settings.Add("Death", false, "Dimension of Death", "split");
-	settings.Add("Swamp", false, "The Swamp", "split");
-	settings.Add("Gnomes", false, "Underground Realm of the Gnomes", "split");
-	settings.Add("Barren", false, "The Barren Region", "split");
-	settings.Add("Frozen", false, "The Frozen Reaches", "split");
-	settings.Add("Paradise", false, "Paradise Lost", "split");
-	settings.Add("RotS1", false, "Realm of the Sun Level 1", "split");
-	settings.Add("RotS2", false, "Realm of the Sun Level 2", "split");
-	settings.Add("RotS3", false, "Realm of the Sun Level 3", "split");
-	settings.Add("RotSAR", false, "Realm of the Sun Altar Room", "split");
 }
 
 /*
