@@ -1,4 +1,4 @@
-state("Mask")
+state("Mask", "Disc")
 {
 	bool loading: 0x21DA28;
 	bool saving: 0x21DBC0;
@@ -32,8 +32,21 @@ startup
 
 init
 {
-	if(modules.First().ModuleMemorySize == 5038080)
-		version = "GOG";
+	string exePath = proc.MainModule.FileName;
+	string hashInHex = "0";
+	using (var md5 = System.Security.Cryptography.MD5.Create())
+    	{
+        	using (var stream = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        	{
+            		var hash = md5.ComputeHash(stream);
+			hashInHex = BitConverter.ToString(hash).Replace("-", "");
+        	}
+    	}
+	
+	if(hashInHex == "28CCCC57D30210070B6A544D7BA8D22F")
+		version = "Disc";
+	else version = "GOG";
+	
 	vars.prevMapID = vars.currMapID = 0;
 }
 
