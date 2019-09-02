@@ -32,7 +32,7 @@ startup
 
 init
 {
-	string exePath = proc.MainModule.FileName;
+	string exePath = game.MainModule.FileName;
 	string hashInHex = "0";
 	using (var md5 = System.Security.Cryptography.MD5.Create())
     	{
