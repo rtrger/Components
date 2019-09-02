@@ -63,7 +63,8 @@ start
 split
 {
 	// During loading, the game sets miniMapID to the currently loaded level's miniMapID value. Splitting is based on that.
-	if(old.loading && !current.loading) {
+	if(old.loading && !current.loading)
+	{
 		vars.prevMapID = vars.currMapID;
 		vars.currMapID = current.miniMapID;
 		if((vars.prevMapID == 0 && vars.currMapID == 14 && settings["Castle"])   ||
