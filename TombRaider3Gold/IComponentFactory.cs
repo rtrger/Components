@@ -59,7 +59,7 @@ namespace LiveSplit.TR3GComponent
 
         // URL pointing to the repository that contains the source code of the component.
         // It has to be the raw github link!
-        public string UpdateURL => "https://raw.githubusercontent.com/rtrger/test/master/";
+        public string UpdateURL => "https://raw.githubusercontent.com/rtrger/Components/master/TombRaider3Gold/";
 
 		// XML which is checked to see whether it's needed to update the component or not.
         public string XMLURL => UpdateURL + "Component/update.xml"; // value should be: UpdateURL + "file path to the XML file relative to UpdateURL"
