@@ -31,37 +31,37 @@ namespace LiveSplit.TR3GComponent
 	// https://github.com/LiveSplit/LiveSplit/blob/master/LiveSplit/LiveSplit.Core/UI/Components/IComponentFactory.cs
 	// IComponentFactory has to implement IUpdatable too:
 	// https://github.com/LiveSplit/LiveSplit/blob/master/LiveSplit/UpdateManager/IUpdateable.cs
-    public class TR3GComponentFactory : IComponentFactory
-    {
+	public class TR3GComponentFactory : IComponentFactory
+    	{
 		// IComponentFactory implementations:
 		
 		// Text you see in the menu which you see after pressing + in the Layout Editor.
-        public string ComponentName => "Tomb Raider: The Lost Artifact";
+        	public string ComponentName => "Tomb Raider: The Lost Artifact";
 
 		// If you hover over "My first component." in the "+" menu this is the help text that's gonna be displayed.
-        public string Description => "Game time, autostart, autoreset and autosplit for Tomb Raider 3 Gold.";
+        	public string Description => "Game time, autostart, autoreset and autosplit for Tomb Raider 3 Gold.";
 
 		// This will make the component appear in the "Timer" section of the "+" menu.
-        public ComponentCategory Category => ComponentCategory.Timer;
+        	public ComponentCategory Category => ComponentCategory.Timer;
 
 		// Loads in our own autosplitter/load remover/UI code to LiveSplit.
-        public IComponent Create(LiveSplitState state)
-        {
-            return new TR3GComponent(state);
-        }
+       		public IComponent Create(LiveSplitState state)
+       		{
+            	return new TR3GComponent(state);
+        	}
 
 		// IUpdatable implementations:
 
 		// The constructor Version(Int32, Int32) works fine, Version(String) gives an error in the Event Viewer!
 		public Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
-        public string UpdateName => ComponentName;
+        	public string UpdateName => ComponentName;
 
-        // URL pointing to the repository that contains the source code of the component.
-        // It has to be the raw github link!
-        public string UpdateURL => "https://raw.githubusercontent.com/rtrger/Components/master/TombRaider3Gold/";
+        	// URL pointing to the repository that contains the source code of the component.
+        	// It has to be the raw github link!
+        	public string UpdateURL => "https://raw.githubusercontent.com/rtrger/Components/master/TombRaider3Gold/";
 
 		// XML which is checked to see whether it's needed to update the component or not.
-        public string XMLURL => UpdateURL + "Component/update.xml"; // value should be: UpdateURL + "file path to the XML file relative to UpdateURL"
-    }
+        	public string XMLURL => UpdateURL + "Component/update.xml"; // value should be: UpdateURL + "file path to the XML file relative to UpdateURL"
+    	}
 }
