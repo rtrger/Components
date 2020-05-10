@@ -44,7 +44,7 @@ split
 	{
 		vars.prevMapID = vars.currMapID;
 		vars.currMapID = current.miniMapID;
-		if ((vars.prevMapID == 0 && vars.currMapID == 14 && settings["Castle"])   ||
+		if ((vars.prevMapID == 0 && vars.currMapID == 14 && settings["Castle"])  ||
 		   (vars.prevMapID == 0 && vars.currMapID == 1 && settings["Death"])     ||
 		   (vars.prevMapID == 1 && vars.currMapID == 2 && settings["Swamp"])     ||
 		   (vars.prevMapID == 2 && vars.currMapID == 3 && settings["Gnomes"])    ||
