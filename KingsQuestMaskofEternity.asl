@@ -40,11 +40,11 @@ start
 split
 {
 	// During loading, the game sets miniMapID to the currently loaded level's miniMapID value. Splitting is based on that.
-	if(old.loading && !current.loading)
+	if (old.loading && !current.loading)
 	{
 		vars.prevMapID = vars.currMapID;
 		vars.currMapID = current.miniMapID;
-		if((vars.prevMapID == 0 && vars.currMapID == 14 && settings["Castle"])   ||
+		if ((vars.prevMapID == 0 && vars.currMapID == 14 && settings["Castle"])   ||
 		   (vars.prevMapID == 0 && vars.currMapID == 1 && settings["Death"])     ||
 		   (vars.prevMapID == 1 && vars.currMapID == 2 && settings["Swamp"])     ||
 		   (vars.prevMapID == 2 && vars.currMapID == 3 && settings["Gnomes"])    ||
@@ -58,7 +58,7 @@ split
 				return true;
 	}
 
-	if(!old.deadLucreto && current.deadLucreto && vars.currMapID == 10)
+	if (!old.deadLucreto && current.deadLucreto && vars.currMapID == 10)
 		return true;
 	
 }
