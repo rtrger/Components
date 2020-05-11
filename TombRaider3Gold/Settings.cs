@@ -48,10 +48,12 @@ public class ComponentSettings : UserControl
             // fullGameMode
             // 
             this.fullGameMode.AutoSize = true;
+            this.fullGameMode.Checked = true;
             this.fullGameMode.Location = new System.Drawing.Point(6, 16);
             this.fullGameMode.Name = "fullGameMode";
             this.fullGameMode.Size = new System.Drawing.Size(99, 17);
             this.fullGameMode.TabIndex = 0;
+            this.fullGameMode.TabStop = true;
             this.fullGameMode.Text = "Full game mode";
             this.fullGameMode.UseVisualStyleBackColor = true;
             this.fullGameMode.CheckedChanged += new System.EventHandler(this.fullGameMode_CheckedChanged);
