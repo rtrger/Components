@@ -123,6 +123,8 @@ startup
 		Tuple.Create("Industrial Roof Tops", "industrial", "PARIS1C.GMX", "PARIS1B.GMX"),
 		Tuple.Create("Margot Carvier's Apartment", "carvier", "PARIS1B.GMX", "PARIS2_1.GMX"),
 		Tuple.Create("The Serpent Rouge", "serpent", "PARIS2B.GMX", "PARIS2_1.GMX"),
+		Tuple.Create("Pierre's questline", "ghetto1", "PARIS2_2.GMX", "PARIS2G.GMX"),
+		Tuple.Create("Bernard's questline", "ghetto2", "PARIS2_3.GMX", "PARIS2G.GMX"),
 		Tuple.Create("St. Aicard's Graveyard", "aicard", "PARIS2G.GMX", "PARIS2H.GMX"),
 		Tuple.Create("Bouchard's Hideout", "bouchard", "PARIS2H.GMX", "PARIS2E.GMX"),
 		Tuple.Create("Rennes' Pawnshop", "rennes", "CUTSCENE\\CS_2_51A.GMX", "PARIS3.GMX"),
@@ -160,6 +162,8 @@ startup
 	settings.SetToolTip("dig", "Tick this if you're heading to Tomb of Ancients and you want a split point as The Archaeological Dig level ends.");
 	settings.SetToolTip("dig2", "Tick this if you're heading to Galleries Under Siege and you want a split point as The Archaeological Dig level ends.");
 	settings.SetToolTip("bouchard", "Tick this if you want a split point as you leave to St. Aicard's Church from Bouchard's Hideout.");
+	settings.SetToolTip("ghetto1", "Tick this if you want a split as you enter St. Aicard's Graveyard through Francine's apartment.");
+	settings.SetToolTip("ghetto2", "Tick this if you want a split as you enter St. Aicard's Graveyard via the doorman.");
 
 	// This array is for preventing splitting multiple times on the same split point.
 	vars.hasSplit = new bool[vars.levelInfo.Length];
@@ -229,9 +233,9 @@ startup
         		}
     		}
 		
-		foreach(KeyValuePair<string, string> kvp in exeVersions)
+		foreach (KeyValuePair<string, string> kvp in exeVersions)
 		{
-			if(kvp.Key == hashInHex)
+			if (kvp.Key == hashInHex)
 			{
 				return kvp.Value;
 			}
@@ -242,9 +246,9 @@ startup
 
 	vars.SetPointers = (Action<string>)(gameVer =>
 	{
-		foreach(var addressTuple in injectionAddresses)
+		foreach (var addressTuple in injectionAddresses)
 		{
-			if(gameVer == addressTuple.Item1)
+			if (gameVer == addressTuple.Item1)
 			{
 				vars.sysBeginLoadingScreen = new IntPtr(addressTuple.Item2);
 				vars.sBLSCalls = new IntPtr[]{new IntPtr(addressTuple.Item3), new IntPtr(addressTuple.Item4)};
@@ -285,7 +289,7 @@ startup
 		byte[] sBLSDetBy = vars.CreateBLSDetourBytes(vars.loadingPtrBytes);
 		byte[] sELSDetBy = vars.CreateELSDetourBytes(vars.loadingPtrBytes);
 
-		for(int i = 0; i < 2; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			vars.sBLSDetFuncPtrs[i] = proc.AllocateMemory(sBLSDetBy.Length); // Deallocated in shutdown.
 			proc.WriteBytes((IntPtr)vars.sBLSDetFuncPtrs[i], sBLSDetBy);
@@ -308,7 +312,7 @@ init
 {
 	version = vars.DetermineVersion(game);
 		
-	if(version != "Unrecognized")
+	if (version != "Unrecognized")
 	{
 		vars.SetPointers(version);
 		vars.InstallLoadRemovalHooks(game);
@@ -317,19 +321,19 @@ init
 
 update
 {
-	if(version == "Unrecognized")
+	if (version == "Unrecognized")
 	{
 		return false;
 	}
 
 	vars.isLoading = game.ReadValue<bool>((IntPtr)vars.loadingPtr);
 
-	if(old.gameAction != 3 && current.gameAction == 3)
+	if (old.gameAction != 3 && current.gameAction == 3)
 	{
 		vars.newLevelLoading = true;
 	}
 	
-	if(old.gameAction == 3 && current.gameAction != 3)
+	if (old.gameAction == 3 && current.gameAction != 3)
 	{
 		vars.newLevelLoading = false;
 	}
@@ -342,7 +346,7 @@ isLoading
 
 start
 {
-	for(int i = 0; i < vars.hasSplit.Length; i++)
+	for (int i = 0; i < vars.hasSplit.Length; i++)
 	{
 		vars.hasSplit[i] = false;
 	}
@@ -358,11 +362,11 @@ reset
 
 split
 {
-	if(vars.newLevelLoading)
+	if (vars.newLevelLoading)
 	{
-		for(int i = 0; i < vars.levelInfo.Length; i++)
+		for (int i = 0; i < vars.levelInfo.Length; i++)
 		{
-			if(settings[vars.levelInfo[i].Item2] == true && old.mapName == vars.levelInfo[i].Item3 && current.mapName == vars.levelInfo[i].Item4 && vars.hasSplit[i] == false)
+			if (settings[vars.levelInfo[i].Item2] == true && old.mapName == vars.levelInfo[i].Item3 && current.mapName == vars.levelInfo[i].Item4 && vars.hasSplit[i] == false)
 			{
 				vars.hasSplit[i] = true;
 				return true;
@@ -376,26 +380,26 @@ split
 
 shutdown
 {
-	if(version != "Unrecognized" && game != null)
+	if (version != "Unrecognized" && game != null)
 	{
 		game.Suspend();
 
-		foreach(IntPtr calls in vars.sBLSCalls)
+		foreach (IntPtr calls in vars.sBLSCalls)
 		{
 			game.WriteCallInstruction(calls, (IntPtr)vars.sysBeginLoadingScreen);
 		}
 
-		foreach(IntPtr calls in vars.sELSCalls)
+		foreach (IntPtr calls in vars.sELSCalls)
 		{
 			game.WriteCallInstruction(calls, (IntPtr)vars.sysEndLoadingScreen);
 		}
 
-		foreach(var allocPtr in vars.sBLSDetFuncPtrs)
+		foreach (var allocPtr in vars.sBLSDetFuncPtrs)
 		{
 			game.FreeMemory((IntPtr)allocPtr);
 		}
 
-		foreach(var allocPtr in vars.sELSDetFuncPtrs)
+		foreach (var allocPtr in vars.sELSDetFuncPtrs)
 		{
 			game.FreeMemory((IntPtr)allocPtr);
 		}
