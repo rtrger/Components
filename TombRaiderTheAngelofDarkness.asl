@@ -153,7 +153,7 @@ startup
 	};
 
 	settings.Add("autosplit", true, "Split automatically at the end of:");
-	foreach(var levelTuple in vars.levelInfo)
+	foreach (var levelTuple in vars.levelInfo)
 	{
 		settings.Add(levelTuple.Item2, false, levelTuple.Item1, "autosplit");
 	}
