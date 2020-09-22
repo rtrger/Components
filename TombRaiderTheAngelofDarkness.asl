@@ -1,6 +1,22 @@
 state("TRAOD", "TRAOD.exe, v39")
 {
+	// gameAction values:
+	// 0: In every menu (main, paused, inventory, exit game etc.), in-game, during conversations, during cutscenes, during the intro FMVs before the menu, and during the Karel reveal FMV.
+	// 1: After pressing New Game, during the FMV and during the loading screen following the FMV.
+	// 2: During savegame loads.
+	// 3: During the FMV at the end of Siege, during loads which are after a level's EoL trigger, and during the fadeouts after activating an EoL trigger with Lara or Kurtis.
+	// 4: During exiting to the main menu.
+	// 5: During loads after cutscene levels.
+	// 6: Cutscene level loads and during the fadeouts before cutscenes.
+	// 7: During the fadeout leading up to conversations.
+	// 8: Just before the inventory shows up.
+	// 9: Unknown (searching for MOV [gameAction], 9's bytecode in CE shows no results).
+	// 10: Just before the Paused menu shows up.
+	// 11: Just before the Game Over menu shows up.
+	// 12: Just before the inventory screen shows up when you sell items to Rennes.
 	byte gameAction: 0x439AB8;
+	
+	// The currently loaded map file from the data\Maps folder.
 	string30 mapName: 0x4887EA;
 }
 
@@ -220,7 +236,7 @@ startup
 		{"3FB88FBC678BD8EFEB2A6AD6F3AA2CEA", "TRAOD_P4.exe, v52J"}
 	};
 
-	vars.DetermineVersion = (Func<Process, string>)(proc =>
+	vars.DetermineVersion = (Func<Process, string>) (proc =>
 	{
 		string exePath = proc.MainModule.FileName; // Why not using MainModuleWow64Safe()? Explained at the bottom of this file.
 		string hashInHex = "0";
@@ -243,8 +259,18 @@ startup
 		
 		return "Unrecognized";
 	});
+	
+	LiveSplit.Model.Input.EventHandlerT<LiveSplit.Model.TimerPhase> ResetDoubleSplitPrevention = (s, e) =>
+	{
+		for (int i = 0; i < vars.hasSplit.Length; i++)
+		{
+			vars.hasSplit[i] = false;
+		}
+	};
+	timer.OnReset += ResetDoubleSplitPrevention;
+	vars.ResetDSP = ResetDoubleSplitPrevention;
 
-	vars.SetPointers = (Action<string>)(gameVer =>
+	vars.SetPointers = (Action<string>) (gameVer =>
 	{
 		foreach (var addressTuple in injectionAddresses)
 		{
@@ -258,7 +284,7 @@ startup
 		}
 	});
 
-	vars.CreateBLSDetourBytes = (Func<byte[], byte[]>)(loading =>
+	vars.CreateBLSDetourBytes = (Func<byte[], byte[]>) (loading =>
 	{
 		var sBLSCallDetour = new List<byte>(){0xC7, 0x05}; // MOV opcode.
 		sBLSCallDetour.AddRange(loading);
@@ -268,7 +294,7 @@ startup
 		return sBLSCallDetour.ToArray();
 	});
 
-	vars.CreateELSDetourBytes = (Func<byte[], byte[]>)(loading =>
+	vars.CreateELSDetourBytes = (Func<byte[], byte[]>) (loading =>
 	{
 		var sELSCallDetour = new List<byte>(){0xFF, 0xFF, 0xFF, 0xFF, 0xFF}; // CALL placeholder.
 		sELSCallDetour.AddRange(new byte[]{0xC7, 0x05});
@@ -278,30 +304,30 @@ startup
 		return sELSCallDetour.ToArray();
 	});
 
-	vars.InstallLoadRemovalHooks = (Action<Process>)(proc =>
+	vars.InstallLoadRemovalHooks = (Action<Process>) (proc =>
 	{
 		proc.Suspend();
 
 		vars.sBLSDetFuncPtrs = new IntPtr[2];
 		vars.sELSDetFuncPtrs = new IntPtr[2];
 		vars.loadingPtr = proc.AllocateMemory(sizeof(int));
-		vars.loadingPtrBytes = BitConverter.GetBytes((uint)vars.loadingPtr);
+		vars.loadingPtrBytes = BitConverter.GetBytes((uint) vars.loadingPtr);
 		byte[] sBLSDetBy = vars.CreateBLSDetourBytes(vars.loadingPtrBytes);
 		byte[] sELSDetBy = vars.CreateELSDetourBytes(vars.loadingPtrBytes);
 
 		for (int i = 0; i < 2; i++)
 		{
-			vars.sBLSDetFuncPtrs[i] = proc.AllocateMemory(sBLSDetBy.Length); // Deallocated in shutdown.
-			proc.WriteBytes((IntPtr)vars.sBLSDetFuncPtrs[i], sBLSDetBy);
-			proc.WriteCallInstruction(IntPtr.Add((IntPtr)vars.sBLSDetFuncPtrs[i], 10), (IntPtr)vars.sysBeginLoadingScreen); // Writing the CALL to the CALL placeholder.
-			proc.WriteJumpInstruction(IntPtr.Add((IntPtr)vars.sBLSDetFuncPtrs[i], 15), IntPtr.Add((IntPtr)vars.sBLSCalls[i], 5)); // Replacing the JMP placeholder.
-			proc.WriteJumpInstruction((IntPtr)vars.sBLSCalls[i], (IntPtr)vars.sBLSDetFuncPtrs[i]);
+			vars.sBLSDetFuncPtrs[i] = proc.AllocateMemory(sBLSDetBy.Length);
+			proc.WriteBytes((IntPtr) vars.sBLSDetFuncPtrs[i], sBLSDetBy);
+			proc.WriteCallInstruction(IntPtr.Add((IntPtr) vars.sBLSDetFuncPtrs[i], 10), (IntPtr) vars.sysBeginLoadingScreen);
+			proc.WriteJumpInstruction(IntPtr.Add((IntPtr) vars.sBLSDetFuncPtrs[i], 15), IntPtr.Add((IntPtr) vars.sBLSCalls[i], 5));
+			proc.WriteJumpInstruction((IntPtr) vars.sBLSCalls[i], (IntPtr) vars.sBLSDetFuncPtrs[i]);
 			
 			vars.sELSDetFuncPtrs[i] = proc.AllocateMemory(sELSDetBy.Length);
-			proc.WriteBytes((IntPtr)vars.sELSDetFuncPtrs[i], sELSDetBy);
-			proc.WriteCallInstruction((IntPtr)vars.sELSDetFuncPtrs[i], (IntPtr)vars.sysEndLoadingScreen);
-			proc.WriteJumpInstruction(IntPtr.Add((IntPtr)vars.sELSDetFuncPtrs[i], 15), IntPtr.Add((IntPtr)vars.sELSCalls[i], 5));
-			proc.WriteJumpInstruction((IntPtr)vars.sELSCalls[i], (IntPtr)vars.sELSDetFuncPtrs[i]);
+			proc.WriteBytes((IntPtr) vars.sELSDetFuncPtrs[i], sELSDetBy);
+			proc.WriteCallInstruction((IntPtr) vars.sELSDetFuncPtrs[i], (IntPtr) vars.sysEndLoadingScreen);
+			proc.WriteJumpInstruction(IntPtr.Add((IntPtr) vars.sELSDetFuncPtrs[i], 15), IntPtr.Add((IntPtr) vars.sELSCalls[i], 5));
+			proc.WriteJumpInstruction((IntPtr) vars.sELSCalls[i], (IntPtr) vars.sELSDetFuncPtrs[i]);
 		}
 
 		proc.Resume();
@@ -326,14 +352,15 @@ update
 		return false;
 	}
 
-	vars.isLoading = game.ReadValue<bool>((IntPtr)vars.loadingPtr);
+	vars.isLoading = game.ReadValue<bool>((IntPtr) vars.loadingPtr);
+	current.isLoading = vars.isLoading;
 
-	if (old.gameAction != 3 && current.gameAction == 3)
+	if (current.gameAction == 3 && !old.isLoading && current.isLoading)
 	{
 		vars.newLevelLoading = true;
 	}
 	
-	if (old.gameAction == 3 && current.gameAction != 3)
+	if (current.gameAction == 3 && old.isLoading && !current.isLoading)
 	{
 		vars.newLevelLoading = false;
 	}
@@ -345,13 +372,7 @@ isLoading
 }
 
 start
-{
-	for (int i = 0; i < vars.hasSplit.Length; i++)
-	{
-		vars.hasSplit[i] = false;
-	}
-	
-	// Documentation of the magic constants can be found at the bottom of this script file.
+{	
 	return (old.gameAction == 1 && current.gameAction == 0);
 }
 
@@ -380,54 +401,41 @@ split
 
 shutdown
 {
+	timer.OnReset -= vars.ResetDSP;
+
 	if (version != "Unrecognized" && game != null)
 	{
 		game.Suspend();
 
 		foreach (IntPtr calls in vars.sBLSCalls)
 		{
-			game.WriteCallInstruction(calls, (IntPtr)vars.sysBeginLoadingScreen);
+			game.WriteCallInstruction(calls, (IntPtr) vars.sysBeginLoadingScreen);
 		}
 
 		foreach (IntPtr calls in vars.sELSCalls)
 		{
-			game.WriteCallInstruction(calls, (IntPtr)vars.sysEndLoadingScreen);
+			game.WriteCallInstruction(calls, (IntPtr) vars.sysEndLoadingScreen);
 		}
 
 		foreach (var allocPtr in vars.sBLSDetFuncPtrs)
 		{
-			game.FreeMemory((IntPtr)allocPtr);
+			game.FreeMemory((IntPtr) allocPtr);
 		}
 
 		foreach (var allocPtr in vars.sELSDetFuncPtrs)
 		{
-			game.FreeMemory((IntPtr)allocPtr);
+			game.FreeMemory((IntPtr) allocPtr);
 		}
 
-		game.FreeMemory((IntPtr)vars.loadingPtr);
+		game.FreeMemory((IntPtr) vars.loadingPtr);
 
 		game.Resume();
 	}
 }
-
-// gameAction (the name comes from the symbol files) values:
-	// 0: In every menu (main, paused, inventory, exit game etc.), in-game, during conversations, during cutscenes, during the intro FMVs before the menu, and during the Karel reveal FMV.
-	// 1: After pressing New Game, during the FMV and during the loading screen following the FMV.
-	// 2: During savegame loads.
-	// 3: During the FMV at the end of Siege, during loads which are after a level's EoL trigger, and during the fadeouts after activating an EoL trigger with Lara or Kurtis.
-	// 4: During exiting to the main menu.
-	// 5: During loads after cutscene levels.
-	// 6: Cutscene level loads and during the fadeouts before cutscenes.
-	// 7: During the fadeout leading up to conversations.
-	// 8: Just before the inventory shows up.
-	// 9: Unknown (searching for MOV [gameAction], 9's bytecode in CE shows no results).
-	// 10: Just before the Paused menu shows up.
-	// 11: Just before the Game Over menu shows up.
-	// 12: Just before the inventory screen shows up when you sell items to Rennes.
 	
 // MainModuleWow64Safe() - https://github.com/LiveSplit/LiveSplit/blob/master/LiveSplit/LiveSplit.Core/ComponentUtil/ProcessExtensions.cs#L46
 	// - It occasionally gets ntdll as the main module.
 	// - ModulesWow64Safe() sometimes throw exceptions (invalid handle, Read/WriteProcessMemory fail) when it tries to do things with the 32-bit dll modules.
-	// - The exceptions only get thrown if you're on a 64-bit Windows.
+	// - The exceptions are only thrown if you're on a 64-bit Windows.
 	// - ModulesWow64Safe() is called by every ASL script so that's why you sometimes see LiveSplit errors in the Event Viewer about inv. handle or RPM/WPM fail, even if the script contains nothing.
 	// - Process.Modules only enumerate the executable module and the 64-bit dlls while ModulesWow64Safe() enumerate both 64 and 32-bit modules and the exe.
