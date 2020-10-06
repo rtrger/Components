@@ -260,15 +260,14 @@ startup
 		return "Unrecognized";
 	});
 	
-	LiveSplit.Model.Input.EventHandlerT<LiveSplit.Model.TimerPhase> ResetDoubleSplitPrevention = (s, e) =>
+	vars.ResetDoubleSplitPrevention = (LiveSplit.Model.Input.EventHandlerT<TimerPhase>) ((s, e) =>
 	{
 		for (int i = 0; i < vars.hasSplit.Length; i++)
 		{
 			vars.hasSplit[i] = false;
 		}
-	};
-	timer.OnReset += ResetDoubleSplitPrevention;
-	vars.ResetDSP = ResetDoubleSplitPrevention;
+	});
+	timer.OnReset += vars.ResetDoubleSplitPrevention;
 
 	vars.SetPointers = (Action<string>) (gameVer =>
 	{
@@ -401,7 +400,7 @@ split
 
 shutdown
 {
-	timer.OnReset -= vars.ResetDSP;
+	timer.OnReset -= vars.ResetDoubleSplitPrevention;
 
 	if (version != "Unrecognized" && game != null)
 	{
