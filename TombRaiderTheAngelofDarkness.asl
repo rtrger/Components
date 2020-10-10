@@ -186,10 +186,7 @@ startup
 
 	// This variable is used to prevent splits during loads started from loading a save file.
 	vars.newLevelLoading = new bool();
-	
-	// True just before the final FMV in Eckhardt's Lab starts (even if FMVs are disabled).
-	vars.lastFMVAboutToStart = new bool();
-	
+
 	// All the addresses required for code injections. The items in one tuple:
 	// - Item1: the version to which the addresses belong in the tuple.
 	// - Item2: 0 - the starting address of the function sysBeginLoadingScreen.
