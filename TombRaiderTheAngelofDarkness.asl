@@ -198,7 +198,7 @@ startup
 	// 			4, 5 - addresses containing the calls for sysEndLoadingScreen which we want to replace.
 	// 			6 - the starting address of the function bossBeginFrame (it's an empty function, not all symbol files has this name).
 	// 			7 - address for a bossBeginFrame call which we'll replace.
-	//			8 - address which has a value identifying the cutscene that's going to play after the screen turns to black completely (assuming no Alt+F4-ing happens).
+	//			8 - address which has a hash identifying the cutscene that's going to play after the screen turns to black completely (assuming no Alt+F4-ing happens).
 	var injectionAddresses = new Tuple<string, int[]>[]
 	{
 		Tuple.Create("TRAOD.exe, v39", new int[]{0x4244C0, 0x500278, 0x5027D6, 0x424890, 0x5027F2, 0x5002AA, 0x510740, 0x548ED0, 0x66E658}),
@@ -328,24 +328,52 @@ startup
 		}
 	});
 	
-	vars.CreateCutsceneDetourBytes = (Func<byte[], byte[]>) (csATS =>
+	vars.CreateLastFMVDetourBytes = (Func<byte[], byte[], byte[]>) ((lFMV, csHash) => // TODO: pass csHash's address
 	{
-		var csDetour = new List<byte>(){0xC7, 0x05};
-		csDetour.AddRange(csATS);
-		csDetour.AddRange(new byte[]{1, 0, 0, 0});
-		csDetour.AddRange(new byte[]{0xC3}); // RET opcode.
-		return csDetour.ToArray();
+/*
+push eax                // 50
+pushf                   // 66 9C
+mov eax, [0x6D4978]     // A1 <the 4 bytes at csHash>
+cmp eax, 0xA097C01      // 3D 01 7C 09 0A
+jne zero                // 75 0C
+mov [lFMV], 1           // C7 05 <4 bytes: lFMVPtrBytes> 01 00 00 00
+jmp return              // EB 0A
+zero:
+mov [lFMV], 0           // C7 05 <4 bytes: lFMVPtrBytes> 00 00 00 00
+return:
+popf                    // 66 CD
+pop eax                 // 58
+ret                     // C3
+*/
+		var lastFMVDetour = new List<byte>(){0x50}; 						// PUSH eax
+		lastFMVDetour.AddRange(new byte[]{0x66, 0x9C});						// PUSHF
+		lastFMVDetour.AddRange(new byte[]{0xA1});
+		lastFMVDetour.AddRange(csHash); 									// MOV eax, [csHash]
+		lastFMVDetour.AddRange(new byte[]{0x3D, 0x01, 0x7C, 0x09, 0x0A}); 	// CMP eax, 0xA097C01
+		lastFMVDetour.AddRange(new byte[]{0x75, 0x0C}); 					// JNE <to MOV [lFMV], 0>
+		lastFMVDetour.AddRange(new byte[]{0xC7, 0x05});
+		lastFMVDetour.AddRange(lFMV);
+		lastFMVDetour.AddRange(new byte[]{1, 0, 0, 0}); 					// MOV [lFMV], 1
+		lastFMVDetour.AddRange(new byte[]{0xEB, 0x0A}); 					// JMP <to POPF>
+		lastFMVDetour.AddRange(new byte[]{0xC7, 0x05});
+		lastFMVDetour.AddRange(lFMV);
+		lastFMVDetour.AddRange(new byte[]{0, 0, 0, 0}); 					// MOV [lFMV], 0
+		lastFMVDetour.AddRange(new byte[]{0x66, 0xCD}); 					// POPF
+		lastFMVDetour.AddRange(new byte[]{0x58}; 							// POP eax
+		lastFMVDetour.AddRange(new byte[]{0xC3}; 							// RET
+		return lastFMVDetour.ToArray();
 	});
 	
 	vars.InstallFinalSplitHook = (Action<Process>) (proc =>
 	{
-		vars.cutsceneDetourFuncPtr = new IntPtr();
-		vars.csAboutToStartPtr = proc.AllocateMemory(sizeof(int));
-		byte[] csATSPtrBytes = BitConverter.GetBytes((uint) vars.csAboutToStartPtr);
-		byte[] csDetBy = vars.CreateCutsceneDetourBytes(csATSPtrBytes);
-		vars.cutsceneDetourFuncPtr = proc.AllocateMemory(csDetBy.Length);
-		proc.WriteBytes((IntPtr) vars.cutsceneDetourFuncPtr, csDetBy);
-		proc.WriteCallInstruction((IntPtr) vars.bBFCall, (IntPtr) vars.cutsceneDetourFuncPtr);
+		vars.lastFMVDetourPtr = new IntPtr();
+		vars.isLastFMVAboutToStartPtr = proc.AllocateMemory(sizeof(int));
+		byte[] isLastFMVPtrBytes = BitConverter.GetBytes((uint) vars.isLastFMVAboutToStartPtr);
+		byte[] csHashPtrBytes = BitConverter.GetBytes((uint) vars.csHash);
+		byte[] lastFMVDetBy = vars.CreateLastFMVDetourBytes(isLastFMVPtrBytes, csHashPtrBytes);
+		vars.lastFMVDetourPtr = proc.AllocateMemory(lastFMVDetBy.Length);
+		proc.WriteBytes((IntPtr) vars.lastFMVDetourPtr, lastFMVDetBy);
+		proc.WriteCallInstruction((IntPtr) vars.bBFCall, (IntPtr) vars.lastFMVDetourPtr);
 	});
 	
 	vars.ResetVariables = (LiveSplit.Model.Input.EventHandlerT<TimerPhase>) ((s, e) =>
@@ -375,7 +403,7 @@ init
 	
 	vars.ResetFinalSplitVariable = (Action) (() =>
 	{
-		game.WriteValue((IntPtr) vars.csAboutToStartPtr, false);
+		game.WriteValue((IntPtr) vars.isLastFMVAboutToStartPtr, false);
 	});
 }
 
@@ -389,8 +417,8 @@ update
 	vars.isLoading = game.ReadValue<bool>((IntPtr) vars.loadingPtr);
 	current.isLoading = vars.isLoading;
 	
-	vars.lastFMVAboutToStart = game.ReadValue<bool>((IntPtr) vars.csAboutToStartPtr);
-	current.lastFMVAboutToStart = vars.lastFMVAboutToStart;
+	vars.isLastFMVAboutToStart = game.ReadValue<bool>((IntPtr) vars.isLastFMVAboutToStartPtr);
+	current.isLastFMVAboutToStart = vars.isLastFMVAboutToStart;
 
 	if (current.gameAction == 3 && !old.isLoading && current.isLoading)
 	{
@@ -432,7 +460,7 @@ split
 		}
 	}
 	
-	return (settings["eckhardt"] == true && !old.lastFMVAboutToStart && current.lastFMVAboutToStart);
+	return (settings["eckhardt"] == true && !old.isLastFMVAboutToStart && current.isLastFMVAboutToStart);
 }
 
 shutdown
@@ -462,8 +490,8 @@ shutdown
 			game.FreeMemory((IntPtr) vars.loadingPtr);
 			
 			game.WriteCallInstruction((IntPtr) vars.bBFCall, (IntPtr) vars.bossBeginFrame);
-			game.FreeMemory((IntPtr) vars.csAboutToStartPtr);
-			game.FreeMemory((IntPtr) vars.cutsceneDetourFuncPtr);
+			game.FreeMemory((IntPtr) vars.isLastFMVAboutToStartPtr);
+			game.FreeMemory((IntPtr) vars.lastFMVDetourPtr);
 
 		game.Resume();
 	}
