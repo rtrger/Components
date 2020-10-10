@@ -193,29 +193,29 @@ startup
 	// All the addresses required for code injections. The items in one tuple:
 	// - Item1: the version to which the addresses belong in the tuple.
 	// - Item2: 0 - the starting address of the function sysBeginLoadingScreen.
-	// 			1, 2 - addresses containing the calls for sysBeginLoadingScreen which we'll replace with jumps to our code caves.
-	// 			3 - the starting address of the function sysEndLoadingScreen.
-	// 			4, 5 - addresses containing the calls for sysEndLoadingScreen which we want to replace.
-	// 			6 - the starting address of the function bossBeginFrame (it's an empty function, not all symbol files has this name).
-	// 			7 - address for a bossBeginFrame call which we'll replace.
-	//			8 - address which has a hash identifying the cutscene that's going to play after the screen turns to black completely (assuming no Alt+F4-ing happens).
+	//	    1, 2 - addresses containing the calls for sysBeginLoadingScreen which we'll replace with jumps to our code caves.
+	// 	    3 - the starting address of the function sysEndLoadingScreen.
+	// 	    4, 5 - addresses containing the calls for sysEndLoadingScreen which we want to replace.
+	// 	    6 - the starting address of the function bossBeginFrame (it's an empty function, not all symbol files has this name).
+	// 	    7 - address for a bossBeginFrame call which we'll replace.
+	//	    8 - address which has a hash identifying the cutscene that's going to play after the screen turns to black completely (assuming no Alt+F4-ing happens).
 	var injectionAddresses = new Tuple<string, int[]>[]
 	{
 		Tuple.Create("TRAOD.exe, v39", new int[]{0x4244C0, 0x500278, 0x5027D6, 0x424890, 0x5027F2, 0x5002AA, 0x510740, 0x548ED0, 0x66E658}),
 		Tuple.Create("TRAOD_P3.exe, v39", new int[]{0x42B4EC, 0x529D34, 0x52C01E, 0x42B598, 0x529D69, 0x52C3E2, 0x488300, 0x575B9A, 0x6A2738}),
-		Tuple.Create("TRAOD_P4.exe, v39", new int[]{0x42C9B0, 0x52F1F7, 0x531522, 0x42CA5C, 0x52F22C, 0x531902, 0x4D4200, 0x57BCE4, 0x2AA838;}),
-		Tuple.Create("TRAOD.exe, v42", new int[]{0x4254C0, 0x501468, 0x5039C6, 0x425890, 0x50149A, 0x5039E2, 0x468EF0, 0x549358, 0x680AD8;}),
-		Tuple.Create("TRAOD_P3.exe, v42", new int[]{0x42C84C, 0x52B100, 0x52D3EA, 0x42C8F8, 0x52B135, 0x52D7AE, 0x54D914, 0x576F82,  0x6AC758;}),
-		Tuple.Create("TRAOD_P4.exe, v42", new int[]{0x42DB20, 0x5306FB, 0x532A2A, 0x42DBCC, 0x530730, 0x532E0A, 0x58E030, 0x57D1D0,  0x6B4858;}),
-		Tuple.Create("TRAOD.exe, v49", new int[]{0x425630, 0x5029E8, 0x504F36, 0x425A00, 0x502A1A, 0x504F52, 0x509760, 0x54AB68, 0x6A17E8;}),
-		Tuple.Create("TRAOD_P3.exe, v49", new int[]{0x42CAC8, 0x52CB90, 0x52EE7A, 0x42CB74, 0x52CBC5, 0x52F20E, 0x522C8C, 0x578C4E, 0x6D4978;}),
-		Tuple.Create("TRAOD_P4.exe, v49", new int[]{0x42E368, 0x5322B3, 0x5345E2, 0x42E414, 0x5322E8, 0x534992, 0x4547C4, 0x57EFD4, 0x6DCA78;}),
-		Tuple.Create("TRAOD.exe, v52", new int[]{0x425510, 0x5026F8, 0x504C36, 0x4258E0, 0x50272A, 0x504C52, 0x4091D0, 0x54B018, 0x6A2568;}),
-		Tuple.Create("TRAOD_P3.exe, v52", new int[]{0x42C9F4, 0x52C98C, 0x52EC72, 0x42CAA0, 0x52C9C1, 0x52F002, 0x4D22D0, 0x579262, 0x6D4998;}),
-		Tuple.Create("TRAOD_P4.exe, v52", new int[]{0x42E1F8, 0x5320AF, 0x5343DA, 0x42E2A4, 0x5320E4, 0x534786, 0x431C74, 0x57F61C, 0x6DDA98;}),
-		Tuple.Create("TRAOD.exe, v52J", new int[]{0x424DB0, 0x5009C7, 0x502CA6, 0x425180, 0x5009F9, 0x502CC2, 0x4896B0, 0x5462D6, 0x6DA3A8;}),
-		Tuple.Create("TRAOD_P3.exe, v52J", new int[]{0x42BFA8, 0x52A03D, 0x52C046, 0x42C054, 0x52A072, 0x52C39E, 0x47D2E4, 0x57329E, 0x711418;}),
-		Tuple.Create("TRAOD_P4.exe, v52J", new int[]{0x42D630, 0x52F8F8, 0x53191A, 0x42D6DC, 0x52F92D, 0x531C86, 0x586DE0, 0x57973C, 0x719418;})
+		Tuple.Create("TRAOD_P4.exe, v39", new int[]{0x42C9B0, 0x52F1F7, 0x531522, 0x42CA5C, 0x52F22C, 0x531902, 0x4D4200, 0x57BCE4, 0x2AA838}),
+		Tuple.Create("TRAOD.exe, v42", new int[]{0x4254C0, 0x501468, 0x5039C6, 0x425890, 0x50149A, 0x5039E2, 0x468EF0, 0x549358, 0x680AD8}),
+		Tuple.Create("TRAOD_P3.exe, v42", new int[]{0x42C84C, 0x52B100, 0x52D3EA, 0x42C8F8, 0x52B135, 0x52D7AE, 0x54D914, 0x576F82,  0x6AC758}),
+		Tuple.Create("TRAOD_P4.exe, v42", new int[]{0x42DB20, 0x5306FB, 0x532A2A, 0x42DBCC, 0x530730, 0x532E0A, 0x58E030, 0x57D1D0,  0x6B4858}),
+		Tuple.Create("TRAOD.exe, v49", new int[]{0x425630, 0x5029E8, 0x504F36, 0x425A00, 0x502A1A, 0x504F52, 0x509760, 0x54AB68, 0x6A17E8}),
+		Tuple.Create("TRAOD_P3.exe, v49", new int[]{0x42CAC8, 0x52CB90, 0x52EE7A, 0x42CB74, 0x52CBC5, 0x52F20E, 0x522C8C, 0x578C4E, 0x6D4978}),
+		Tuple.Create("TRAOD_P4.exe, v49", new int[]{0x42E368, 0x5322B3, 0x5345E2, 0x42E414, 0x5322E8, 0x534992, 0x4547C4, 0x57EFD4, 0x6DCA78}),
+		Tuple.Create("TRAOD.exe, v52", new int[]{0x425510, 0x5026F8, 0x504C36, 0x4258E0, 0x50272A, 0x504C52, 0x4091D0, 0x54B018, 0x6A2568}),
+		Tuple.Create("TRAOD_P3.exe, v52", new int[]{0x42C9F4, 0x52C98C, 0x52EC72, 0x42CAA0, 0x52C9C1, 0x52F002, 0x4D22D0, 0x579262, 0x6D4998}),
+		Tuple.Create("TRAOD_P4.exe, v52", new int[]{0x42E1F8, 0x5320AF, 0x5343DA, 0x42E2A4, 0x5320E4, 0x534786, 0x431C74, 0x57F61C, 0x6DDA98}),
+		Tuple.Create("TRAOD.exe, v52J", new int[]{0x424DB0, 0x5009C7, 0x502CA6, 0x425180, 0x5009F9, 0x502CC2, 0x4896B0, 0x5462D6, 0x6DA3A8}),
+		Tuple.Create("TRAOD_P3.exe, v52J", new int[]{0x42BFA8, 0x52A03D, 0x52C046, 0x42C054, 0x52A072, 0x52C39E, 0x47D2E4, 0x57329E, 0x711418}),
+		Tuple.Create("TRAOD_P4.exe, v52J", new int[]{0x42D630, 0x52F8F8, 0x53191A, 0x42D6DC, 0x52F92D, 0x531C86, 0x586DE0, 0x57973C, 0x719418})
 	};
 	
 	// This dictionary contains the MD5 hashes for all AoD executables handled by this script file.
@@ -328,39 +328,24 @@ startup
 		}
 	});
 	
-	vars.CreateLastFMVDetourBytes = (Func<byte[], byte[], byte[]>) ((lFMV, csHash) => // TODO: pass csHash's address
+	vars.CreateLastFMVDetourBytes = (Func<byte[], byte[], byte[]>) ((lFMV, csHash) =>
 	{
-/*
-push eax                // 50
-pushf                   // 66 9C
-mov eax, [0x6D4978]     // A1 <the 4 bytes at csHash>
-cmp eax, 0xA097C01      // 3D 01 7C 09 0A
-jne zero                // 75 0C
-mov [lFMV], 1           // C7 05 <4 bytes: lFMVPtrBytes> 01 00 00 00
-jmp return              // EB 0A
-zero:
-mov [lFMV], 0           // C7 05 <4 bytes: lFMVPtrBytes> 00 00 00 00
-return:
-popf                    // 66 CD
-pop eax                 // 58
-ret                     // C3
-*/
-		var lastFMVDetour = new List<byte>(){0x50}; 						// PUSH eax
-		lastFMVDetour.AddRange(new byte[]{0x66, 0x9C});						// PUSHF
+		var lastFMVDetour = new List<byte>(){0x50};				// PUSH eax
+		lastFMVDetour.AddRange(new byte[]{0x66, 0x9C});				// PUSHF
 		lastFMVDetour.AddRange(new byte[]{0xA1});
-		lastFMVDetour.AddRange(csHash); 									// MOV eax, [csHash]
+		lastFMVDetour.AddRange(csHash);						// MOV eax, [csHash]
 		lastFMVDetour.AddRange(new byte[]{0x3D, 0x01, 0x7C, 0x09, 0x0A}); 	// CMP eax, 0xA097C01
-		lastFMVDetour.AddRange(new byte[]{0x75, 0x0C}); 					// JNE <to MOV [lFMV], 0>
+		lastFMVDetour.AddRange(new byte[]{0x75, 0x0C});				// JNE <to MOV [lFMV], 0>
 		lastFMVDetour.AddRange(new byte[]{0xC7, 0x05});
 		lastFMVDetour.AddRange(lFMV);
-		lastFMVDetour.AddRange(new byte[]{1, 0, 0, 0}); 					// MOV [lFMV], 1
-		lastFMVDetour.AddRange(new byte[]{0xEB, 0x0A}); 					// JMP <to POPF>
+		lastFMVDetour.AddRange(new byte[]{1, 0, 0, 0});				// MOV [lFMV], 1
+		lastFMVDetour.AddRange(new byte[]{0xEB, 0x0A});				// JMP <to POPF>
 		lastFMVDetour.AddRange(new byte[]{0xC7, 0x05});
 		lastFMVDetour.AddRange(lFMV);
-		lastFMVDetour.AddRange(new byte[]{0, 0, 0, 0}); 					// MOV [lFMV], 0
-		lastFMVDetour.AddRange(new byte[]{0x66, 0xCD}); 					// POPF
-		lastFMVDetour.AddRange(new byte[]{0x58}; 							// POP eax
-		lastFMVDetour.AddRange(new byte[]{0xC3}; 							// RET
+		lastFMVDetour.AddRange(new byte[]{0, 0, 0, 0});				// MOV [lFMV], 0
+		lastFMVDetour.AddRange(new byte[]{0x66, 0x9D});				// POPF
+		lastFMVDetour.AddRange(new byte[]{0x58});				// POP eax
+		lastFMVDetour.AddRange(new byte[]{0xC3});				// RET
 		return lastFMVDetour.ToArray();
 	});
 	
