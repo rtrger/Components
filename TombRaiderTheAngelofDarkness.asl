@@ -198,7 +198,7 @@ startup
 	//	    8 - address which has a hash identifying the cutscene that's going to play after the fadeout is done (assuming you ran into a trigger and no Alt+F4-ing happens).
 	var injectionAddresses = new Tuple<string, int[]>[]
 	{
-		Tuple.Create("TRAOD.exe, v39", new int[]{0x4244C0, 0x500278, 0x5027D6, 0x424890, 0x5027F2, 0x5002AA, 0x510740, 0x548ED0, 0x66E658}),
+		Tuple.Create("TRAOD.exe, v39", new int[]{0x4244C0, 0x500278, 0x5027D6, 0x424890, 0x5027F2, 0x5002AA, 0x510740, 0x548ED8, 0x66E658}),
 		Tuple.Create("TRAOD_P3.exe, v39", new int[]{0x42B4EC, 0x529D34, 0x52C01E, 0x42B598, 0x529D69, 0x52C3E2, 0x488300, 0x575B9A, 0x6A2738}),
 		Tuple.Create("TRAOD_P4.exe, v39", new int[]{0x42C9B0, 0x52F1F7, 0x531522, 0x42CA5C, 0x52F22C, 0x531902, 0x4D4200, 0x57BCE4, 0x2AA838}),
 		Tuple.Create("TRAOD.exe, v42", new int[]{0x4254C0, 0x501468, 0x5039C6, 0x425890, 0x50149A, 0x5039E2, 0x468EF0, 0x549358, 0x680AD8}),
