@@ -186,30 +186,33 @@ startup
 
 	// This variable is used to prevent splits during loads started from loading a save file.
 	vars.newLevelLoading = new bool();
-	
-	// All the addresses required for the load removal code injection. The items in one tuple:
+
+	// All the addresses required for code injections. The items in one tuple:
 	// - Item1: the version to which the addresses belong in the tuple.
-	// - Item2: the starting address of the function sysBeginLoadingScreen.
-	// - Item3, 4: addresses containing the calls for sysBeginLoadingScreen which we'll replace with jumps to our code caves.
-	// - Item5: the starting address of the function sysEndLoadingScreen.
-	// - Item6, 7: addresses containing the calls for sysEndLoadingScreen which we want to replace.
-	var injectionAddresses = new Tuple<string, int, int, int, int, int, int>[]
+	// - Item2: 0 - the starting address of the function sysBeginLoadingScreen.
+	//	    1, 2 - addresses containing the calls for sysBeginLoadingScreen which we'll replace with jumps to our code caves.
+	// 	    3 - the starting address of the function sysEndLoadingScreen.
+	// 	    4, 5 - addresses containing the calls for sysEndLoadingScreen which we want to replace.
+	// 	    6 - the starting address of the function bossBeginFrame (it's an empty function, not all symbol files has this name).
+	// 	    7 - address for a bossBeginFrame call which we'll replace.
+	//	    8 - address which has a hash identifying the cutscene that's going to play after the fadeout is done (assuming you ran into a trigger and no Alt+F4-ing happens).
+	var injectionAddresses = new Tuple<string, int[]>[]
 	{
-		Tuple.Create("TRAOD.exe, v39", 0x4244C0, 0x500278, 0x5027D6, 0x424890, 0x5027F2, 0x5002AA),
-		Tuple.Create("TRAOD_P3.exe, v39", 0x42B4EC, 0x529D34, 0x52C01E, 0x42B598, 0x529D69, 0x52C3E2),
-		Tuple.Create("TRAOD_P4.exe, v39", 0x42C9B0, 0x52F1F7, 0x531522, 0x42CA5C, 0x52F22C, 0x531902),
-		Tuple.Create("TRAOD.exe, v42", 0x4254C0, 0x501468, 0x5039C6, 0x425890, 0x50149A, 0x5039E2),
-		Tuple.Create("TRAOD_P3.exe, v42", 0x42C84C, 0x52B100, 0x52D3EA, 0x42C8F8, 0x52B135, 0x52D7AE),
-		Tuple.Create("TRAOD_P4.exe, v42", 0x42DB20, 0x5306FB, 0x532A2A, 0x42DBCC, 0x530730, 0x532E0A),
-		Tuple.Create("TRAOD.exe, v49", 0x425630, 0x5029E8, 0x504F36, 0x425A00, 0x502A1A, 0x504F52),
-		Tuple.Create("TRAOD_P3.exe, v49", 0x42CAC8, 0x52CB90, 0x52EE7A, 0x42CB74, 0x52CBC5, 0x52F20E),
-		Tuple.Create("TRAOD_P4.exe, v49", 0x42E368, 0x5322B3, 0x5345E2, 0x42E414, 0x5322E8, 0x534992),
-		Tuple.Create("TRAOD.exe, v52", 0x425510, 0x5026F8, 0x504C36, 0x4258E0, 0x50272A, 0x504C52),
-		Tuple.Create("TRAOD_P3.exe, v52", 0x42C9F4, 0x52C98C, 0x52EC72, 0x42CAA0, 0x52C9C1, 0x52F002),
-		Tuple.Create("TRAOD_P4.exe, v52", 0x42E1F8, 0x5320AF, 0x5343DA, 0x42E2A4, 0x5320E4, 0x534786),
-		Tuple.Create("TRAOD.exe, v52J", 0x424DB0, 0x5009C7, 0x502CA6, 0x425180, 0x5009F9, 0x502CC2),
-		Tuple.Create("TRAOD_P3.exe, v52J", 0x42BFA8, 0x52A03D, 0x52C046, 0x42C054, 0x52A072, 0x52C39E),
-		Tuple.Create("TRAOD_P4.exe, v52J", 0x42D630, 0x52F8F8, 0x53191A, 0x42D6DC, 0x52F92D, 0x531C86)
+		Tuple.Create("TRAOD.exe, v39", new int[]{0x4244C0, 0x500278, 0x5027D6, 0x424890, 0x5027F2, 0x5002AA, 0x510740, 0x548ED8, 0x66E658}),
+		Tuple.Create("TRAOD_P3.exe, v39", new int[]{0x42B4EC, 0x529D34, 0x52C01E, 0x42B598, 0x529D69, 0x52C3E2, 0x488300, 0x575B9A, 0x6A2738}),
+		Tuple.Create("TRAOD_P4.exe, v39", new int[]{0x42C9B0, 0x52F1F7, 0x531522, 0x42CA5C, 0x52F22C, 0x531902, 0x4D4200, 0x57BCE4, 0x6AA838}),
+		Tuple.Create("TRAOD.exe, v42", new int[]{0x4254C0, 0x501468, 0x5039C6, 0x425890, 0x50149A, 0x5039E2, 0x468EF0, 0x549358, 0x680AD8}),
+		Tuple.Create("TRAOD_P3.exe, v42", new int[]{0x42C84C, 0x52B100, 0x52D3EA, 0x42C8F8, 0x52B135, 0x52D7AE, 0x54D914, 0x576F82, 0x6AC758}),
+		Tuple.Create("TRAOD_P4.exe, v42", new int[]{0x42DB20, 0x5306FB, 0x532A2A, 0x42DBCC, 0x530730, 0x532E0A, 0x58E030, 0x57D1D0, 0x6B4858}),
+		Tuple.Create("TRAOD.exe, v49", new int[]{0x425630, 0x5029E8, 0x504F36, 0x425A00, 0x502A1A, 0x504F52, 0x509760, 0x54AB68, 0x6A17E8}),
+		Tuple.Create("TRAOD_P3.exe, v49", new int[]{0x42CAC8, 0x52CB90, 0x52EE7A, 0x42CB74, 0x52CBC5, 0x52F20E, 0x522C8C, 0x578C4E, 0x6D4978}),
+		Tuple.Create("TRAOD_P4.exe, v49", new int[]{0x42E368, 0x5322B3, 0x5345E2, 0x42E414, 0x5322E8, 0x534992, 0x4547C4, 0x57EFD4, 0x6DCA78}),
+		Tuple.Create("TRAOD.exe, v52", new int[]{0x425510, 0x5026F8, 0x504C36, 0x4258E0, 0x50272A, 0x504C52, 0x4091D0, 0x54B018, 0x6A2568}),
+		Tuple.Create("TRAOD_P3.exe, v52", new int[]{0x42C9F4, 0x52C98C, 0x52EC72, 0x42CAA0, 0x52C9C1, 0x52F002, 0x4D22D0, 0x579262, 0x6D4998}),
+		Tuple.Create("TRAOD_P4.exe, v52", new int[]{0x42E1F8, 0x5320AF, 0x5343DA, 0x42E2A4, 0x5320E4, 0x534786, 0x431C74, 0x57F61C, 0x6DDA98}),
+		Tuple.Create("TRAOD.exe, v52J", new int[]{0x424DB0, 0x5009C7, 0x502CA6, 0x425180, 0x5009F9, 0x502CC2, 0x4896B0, 0x5462D6, 0x6DA3A8}),
+		Tuple.Create("TRAOD_P3.exe, v52J", new int[]{0x42BFA8, 0x52A03D, 0x52C046, 0x42C054, 0x52A072, 0x52C39E, 0x47D2E4, 0x57329E, 0x711418}),
+		Tuple.Create("TRAOD_P4.exe, v52J", new int[]{0x42D630, 0x52F8F8, 0x53191A, 0x42D6DC, 0x52F92D, 0x531C86, 0x586DE0, 0x57973C, 0x719418})
 	};
 	
 	// This dictionary contains the MD5 hashes for all AoD executables handled by this script file.
@@ -259,15 +262,6 @@ startup
 		
 		return "Unrecognized";
 	});
-	
-	vars.ResetDoubleSplitPrevention = (LiveSplit.Model.Input.EventHandlerT<TimerPhase>) ((s, e) =>
-	{
-		for (int i = 0; i < vars.hasSplit.Length; i++)
-		{
-			vars.hasSplit[i] = false;
-		}
-	});
-	timer.OnReset += vars.ResetDoubleSplitPrevention;
 
 	vars.SetPointers = (Action<string>) (gameVer =>
 	{
@@ -275,10 +269,13 @@ startup
 		{
 			if (gameVer == addressTuple.Item1)
 			{
-				vars.sysBeginLoadingScreen = new IntPtr(addressTuple.Item2);
-				vars.sBLSCalls = new IntPtr[]{new IntPtr(addressTuple.Item3), new IntPtr(addressTuple.Item4)};
-				vars.sysEndLoadingScreen = new IntPtr(addressTuple.Item5);
-				vars.sELSCalls = new IntPtr[]{new IntPtr(addressTuple.Item6), new IntPtr(addressTuple.Item7)};
+				vars.sysBeginLoadingScreen = new IntPtr(addressTuple.Item2[0]);
+				vars.sBLSCalls = new IntPtr[]{new IntPtr(addressTuple.Item2[1]), new IntPtr(addressTuple.Item2[2])};
+				vars.sysEndLoadingScreen = new IntPtr(addressTuple.Item2[3]);
+				vars.sELSCalls = new IntPtr[]{new IntPtr(addressTuple.Item2[4]), new IntPtr(addressTuple.Item2[5])};
+				vars.bossBeginFrame = new IntPtr(addressTuple.Item2[6]);
+				vars.bBFCall = new IntPtr(addressTuple.Item2[7]);
+				vars.csHash = new IntPtr(addressTuple.Item2[8]);
 			}
 		}
 	});
@@ -305,32 +302,72 @@ startup
 
 	vars.InstallLoadRemovalHooks = (Action<Process>) (proc =>
 	{
-		proc.Suspend();
-
-		vars.sBLSDetFuncPtrs = new IntPtr[2];
-		vars.sELSDetFuncPtrs = new IntPtr[2];
+		vars.sBLSDetPtrs = new IntPtr[2];
+		vars.sELSDetPtrs = new IntPtr[2];
 		vars.loadingPtr = proc.AllocateMemory(sizeof(int));
-		vars.loadingPtrBytes = BitConverter.GetBytes((uint) vars.loadingPtr);
-		byte[] sBLSDetBy = vars.CreateBLSDetourBytes(vars.loadingPtrBytes);
-		byte[] sELSDetBy = vars.CreateELSDetourBytes(vars.loadingPtrBytes);
+		byte[] loadingPtrBytes = BitConverter.GetBytes((uint) vars.loadingPtr);
+		byte[] sBLSDetBy = vars.CreateBLSDetourBytes(loadingPtrBytes);
+		byte[] sELSDetBy = vars.CreateELSDetourBytes(loadingPtrBytes);
 
 		for (int i = 0; i < 2; i++)
 		{
-			vars.sBLSDetFuncPtrs[i] = proc.AllocateMemory(sBLSDetBy.Length);
-			proc.WriteBytes((IntPtr) vars.sBLSDetFuncPtrs[i], sBLSDetBy);
-			proc.WriteCallInstruction(IntPtr.Add((IntPtr) vars.sBLSDetFuncPtrs[i], 10), (IntPtr) vars.sysBeginLoadingScreen);
-			proc.WriteJumpInstruction(IntPtr.Add((IntPtr) vars.sBLSDetFuncPtrs[i], 15), IntPtr.Add((IntPtr) vars.sBLSCalls[i], 5));
-			proc.WriteJumpInstruction((IntPtr) vars.sBLSCalls[i], (IntPtr) vars.sBLSDetFuncPtrs[i]);
+			vars.sBLSDetPtrs[i] = proc.AllocateMemory(sBLSDetBy.Length);
+			proc.WriteBytes((IntPtr) vars.sBLSDetPtrs[i], sBLSDetBy);
+			proc.WriteCallInstruction(IntPtr.Add((IntPtr) vars.sBLSDetPtrs[i], 10), (IntPtr) vars.sysBeginLoadingScreen);
+			proc.WriteJumpInstruction(IntPtr.Add((IntPtr) vars.sBLSDetPtrs[i], 15), IntPtr.Add((IntPtr) vars.sBLSCalls[i], 5));
+			proc.WriteJumpInstruction((IntPtr) vars.sBLSCalls[i], (IntPtr) vars.sBLSDetPtrs[i]);
 			
-			vars.sELSDetFuncPtrs[i] = proc.AllocateMemory(sELSDetBy.Length);
-			proc.WriteBytes((IntPtr) vars.sELSDetFuncPtrs[i], sELSDetBy);
-			proc.WriteCallInstruction((IntPtr) vars.sELSDetFuncPtrs[i], (IntPtr) vars.sysEndLoadingScreen);
-			proc.WriteJumpInstruction(IntPtr.Add((IntPtr) vars.sELSDetFuncPtrs[i], 15), IntPtr.Add((IntPtr) vars.sELSCalls[i], 5));
-			proc.WriteJumpInstruction((IntPtr) vars.sELSCalls[i], (IntPtr) vars.sELSDetFuncPtrs[i]);
+			vars.sELSDetPtrs[i] = proc.AllocateMemory(sELSDetBy.Length);
+			proc.WriteBytes((IntPtr) vars.sELSDetPtrs[i], sELSDetBy);
+			proc.WriteCallInstruction((IntPtr) vars.sELSDetPtrs[i], (IntPtr) vars.sysEndLoadingScreen);
+			proc.WriteJumpInstruction(IntPtr.Add((IntPtr) vars.sELSDetPtrs[i], 15), IntPtr.Add((IntPtr) vars.sELSCalls[i], 5));
+			proc.WriteJumpInstruction((IntPtr) vars.sELSCalls[i], (IntPtr) vars.sELSDetPtrs[i]);
 		}
-
-		proc.Resume();
 	});
+	
+	vars.CreateLastFMVDetourBytes = (Func<byte[], byte[], byte[]>) ((lFMV, csHash) =>
+	{
+		var lastFMVDetour = new List<byte>(){0x50};				// PUSH eax
+		lastFMVDetour.AddRange(new byte[]{0x66, 0x9C});				// PUSHF
+		lastFMVDetour.AddRange(new byte[]{0xA1});
+		lastFMVDetour.AddRange(csHash);						// MOV eax, [csHash]
+		lastFMVDetour.AddRange(new byte[]{0x3D, 0x01, 0x7C, 0x09, 0x0A}); 	// CMP eax, 0xA097C01
+		lastFMVDetour.AddRange(new byte[]{0x75, 0x0C});				// JNE <to MOV [lFMV], 0>
+		lastFMVDetour.AddRange(new byte[]{0xC7, 0x05});
+		lastFMVDetour.AddRange(lFMV);
+		lastFMVDetour.AddRange(new byte[]{1, 0, 0, 0});				// MOV [lFMV], 1
+		lastFMVDetour.AddRange(new byte[]{0xEB, 0x0A});				// JMP <to POPF>
+		lastFMVDetour.AddRange(new byte[]{0xC7, 0x05});
+		lastFMVDetour.AddRange(lFMV);
+		lastFMVDetour.AddRange(new byte[]{0, 0, 0, 0});				// MOV [lFMV], 0
+		lastFMVDetour.AddRange(new byte[]{0x66, 0x9D});				// POPF
+		lastFMVDetour.AddRange(new byte[]{0x58});				// POP eax
+		lastFMVDetour.AddRange(new byte[]{0xC3});				// RET
+		return lastFMVDetour.ToArray();
+	});
+	
+	vars.InstallFinalSplitHook = (Action<Process>) (proc =>
+	{
+		vars.lastFMVDetourPtr = new IntPtr();
+		vars.isLastFMVAboutToStartPtr = proc.AllocateMemory(sizeof(int));
+		byte[] isLastFMVPtrBytes = BitConverter.GetBytes((uint) vars.isLastFMVAboutToStartPtr);
+		byte[] csHashPtrBytes = BitConverter.GetBytes((uint) vars.csHash);
+		byte[] lastFMVDetBy = vars.CreateLastFMVDetourBytes(isLastFMVPtrBytes, csHashPtrBytes);
+		vars.lastFMVDetourPtr = proc.AllocateMemory(lastFMVDetBy.Length);
+		proc.WriteBytes((IntPtr) vars.lastFMVDetourPtr, lastFMVDetBy);
+		proc.WriteCallInstruction((IntPtr) vars.bBFCall, (IntPtr) vars.lastFMVDetourPtr);
+	});
+	
+	vars.ResetVariables = (LiveSplit.Model.Input.EventHandlerT<TimerPhase>) ((s, e) =>
+	{
+		for (int i = 0; i < vars.hasSplit.Length; i++)
+		{
+			vars.hasSplit[i] = false;
+		}
+		
+		vars.ResetFinalSplitVariable();
+	});
+	timer.OnReset += vars.ResetVariables;
 }
 
 init
@@ -340,8 +377,19 @@ init
 	if (version != "Unrecognized")
 	{
 		vars.SetPointers(version);
-		vars.InstallLoadRemovalHooks(game);
+		game.Suspend();
+			vars.InstallLoadRemovalHooks(game);
+			vars.InstallFinalSplitHook(game);
+		game.Resume();
 	}
+	
+	vars.ResetFinalSplitVariable = (Action) (() =>
+	{
+		if (version != "Unrecognized" && game != null)
+		{
+			game.WriteValue((IntPtr) vars.isLastFMVAboutToStartPtr, false);
+		}
+	});
 }
 
 update
@@ -353,6 +401,9 @@ update
 
 	vars.isLoading = game.ReadValue<bool>((IntPtr) vars.loadingPtr);
 	current.isLoading = vars.isLoading;
+	
+	vars.isLastFMVAboutToStart = game.ReadValue<bool>((IntPtr) vars.isLastFMVAboutToStartPtr);
+	current.isLastFMVAboutToStart = vars.isLastFMVAboutToStart;
 
 	if (current.gameAction == 3 && !old.isLoading && current.isLoading)
 	{
@@ -394,39 +445,38 @@ split
 		}
 	}
 	
-	// Final split.
-	return (settings["eckhardt"] == true && old.mapName == "PRAGUE6.GMX" && current.mapName == "FRONTEND.GMX"); 
+	return (settings["eckhardt"] == true && !old.isLastFMVAboutToStart && current.isLastFMVAboutToStart);
 }
 
 shutdown
 {
-	timer.OnReset -= vars.ResetDoubleSplitPrevention;
+	timer.OnReset -= vars.ResetVariables;
 
 	if (version != "Unrecognized" && game != null)
 	{
 		game.Suspend();
 
-		foreach (IntPtr calls in vars.sBLSCalls)
-		{
-			game.WriteCallInstruction(calls, (IntPtr) vars.sysBeginLoadingScreen);
-		}
-
-		foreach (IntPtr calls in vars.sELSCalls)
-		{
-			game.WriteCallInstruction(calls, (IntPtr) vars.sysEndLoadingScreen);
-		}
-
-		foreach (var allocPtr in vars.sBLSDetFuncPtrs)
-		{
-			game.FreeMemory((IntPtr) allocPtr);
-		}
-
-		foreach (var allocPtr in vars.sELSDetFuncPtrs)
-		{
-			game.FreeMemory((IntPtr) allocPtr);
-		}
-
-		game.FreeMemory((IntPtr) vars.loadingPtr);
+			foreach (IntPtr calls in vars.sBLSCalls)
+			{
+				game.WriteCallInstruction(calls, (IntPtr) vars.sysBeginLoadingScreen);
+			}
+			foreach (IntPtr calls in vars.sELSCalls)
+			{
+				game.WriteCallInstruction(calls, (IntPtr) vars.sysEndLoadingScreen);
+			}
+			foreach (var allocPtr in vars.sBLSDetPtrs)
+			{
+				game.FreeMemory((IntPtr) allocPtr);
+			}
+			foreach (var allocPtr in vars.sELSDetPtrs)
+			{
+				game.FreeMemory((IntPtr) allocPtr);
+			}
+			game.FreeMemory((IntPtr) vars.loadingPtr);
+			
+			game.WriteCallInstruction((IntPtr) vars.bBFCall, (IntPtr) vars.bossBeginFrame);
+			game.FreeMemory((IntPtr) vars.isLastFMVAboutToStartPtr);
+			game.FreeMemory((IntPtr) vars.lastFMVDetourPtr);
 
 		game.Resume();
 	}
