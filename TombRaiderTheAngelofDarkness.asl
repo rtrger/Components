@@ -195,7 +195,7 @@ startup
 	// 	    4, 5 - addresses containing the calls for sysEndLoadingScreen which we want to replace.
 	// 	    6 - the starting address of the function bossBeginFrame (it's an empty function, not all symbol files has this name).
 	// 	    7 - address for a bossBeginFrame call which we'll replace.
-	//	    8 - address which has a hash identifying the cutscene that's going to play after the screen turns to black completely (assuming no Alt+F4-ing happens).
+	//	    8 - address which has a hash identifying the cutscene that's going to play after the fadeout is done (assuming you ran into a trigger and no Alt+F4-ing happens).
 	var injectionAddresses = new Tuple<string, int[]>[]
 	{
 		Tuple.Create("TRAOD.exe, v39", new int[]{0x4244C0, 0x500278, 0x5027D6, 0x424890, 0x5027F2, 0x5002AA, 0x510740, 0x548ED0, 0x66E658}),
@@ -385,7 +385,10 @@ init
 	
 	vars.ResetFinalSplitVariable = (Action) (() =>
 	{
-		game.WriteValue((IntPtr) vars.isLastFMVAboutToStartPtr, false);
+		if (version != "Unrecognized" && game != null)
+		{
+			game.WriteValue((IntPtr) vars.isLastFMVAboutToStartPtr, false);
+		}
 	});
 }
 
