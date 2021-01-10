@@ -65,7 +65,7 @@ namespace LiveSplit.TR3GComponent
         // This is always called while the component is added to your LiveSplit layout.
         public override void Update(IInvalidator invalidator, LiveSplitState state, float width, float height, LayoutMode mode)
         {
-            _gm.ILsettings = compSettings.ilMode; // Bad way of updating settings' state but being incompetent as usual.
+            _gm.ILsettings = compSettings.ilMode;
 
             _gm.Update();
 
