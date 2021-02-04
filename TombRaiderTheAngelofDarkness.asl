@@ -357,17 +357,6 @@ startup
 		proc.WriteBytes((IntPtr) vars.lastFMVDetourPtr, lastFMVDetBy);
 		proc.WriteCallInstruction((IntPtr) vars.bBFCall, (IntPtr) vars.lastFMVDetourPtr);
 	});
-	
-	vars.ResetVariables = (LiveSplit.Model.Input.EventHandlerT<TimerPhase>) ((s, e) =>
-	{
-		for (int i = 0; i < vars.hasSplit.Length; i++)
-		{
-			vars.hasSplit[i] = false;
-		}
-		
-		vars.ResetFinalSplitVariable();
-	});
-	timer.OnReset += vars.ResetVariables;
 }
 
 init
@@ -383,13 +372,19 @@ init
 		game.Resume();
 	}
 	
-	vars.ResetFinalSplitVariable = (Action) (() =>
+	vars.ResetVariables = (LiveSplit.Model.Input.EventHandlerT<TimerPhase>) ((s, tp) =>
 	{
+		for (int i = 0; i < vars.hasSplit.Length; i++)
+		{
+			vars.hasSplit[i] = false;
+		}
+		
 		if (version != "Unrecognized" && game != null)
 		{
 			game.WriteValue((IntPtr) vars.isLastFMVAboutToStartPtr, false);
 		}
 	});
+	timer.OnReset += vars.ResetVariables;
 }
 
 update
@@ -448,10 +443,13 @@ split
 	return (settings["eckhardt"] == true && !old.isLastFMVAboutToStart && current.isLastFMVAboutToStart);
 }
 
-shutdown
+exit
 {
 	timer.OnReset -= vars.ResetVariables;
+}
 
+shutdown
+{
 	if (version != "Unrecognized" && game != null)
 	{
 		game.Suspend();
