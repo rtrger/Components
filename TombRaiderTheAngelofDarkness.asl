@@ -446,6 +446,7 @@ split
 exit
 {
 	timer.OnReset -= vars.ResetVariables;
+	timer.IsGameTimePaused = true;
 }
 
 shutdown
