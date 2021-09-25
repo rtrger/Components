@@ -174,6 +174,7 @@ startup
 		settings.Add(levelTuple.Item2, false, levelTuple.Item1, "autosplit");
 	}
 	settings.Add("eckhardt", true, "Eckhardt's Lab", "autosplit");
+	settings.Add("prague", false, "Start timer at Prague (The Monstrum Crimescene).");
 	settings.SetToolTip("boaz", "This is Vault of Trophies' end in the any% route.");
 	settings.SetToolTip("dig", "Tick this if you're heading to Tomb of Ancients and you want a split point as The Archaeological Dig level ends.");
 	settings.SetToolTip("dig2", "Tick this if you're heading to Galleries Under Siege and you want a split point as The Archaeological Dig level ends.");
@@ -418,12 +419,18 @@ isLoading
 
 start
 {	
-	return (old.gameAction == 1 && current.gameAction == 0);
+	if (settings["prague"] == true)
+		return (current.mapName == "PRAGUE1.GMX" && old.isLoading && !current.isLoading);
+	else
+		return (old.gameAction == 1 && current.gameAction == 0);
 }
 
 reset
 {
-	return (old.gameAction == 0 && current.gameAction == 1);
+	if (settings["prague"] == true)
+		return (old.mapName == "CUTSCENE\\CS_7_19.GMX" && current.mapName == "PRAGUE1.GMX");
+	else
+		return (old.gameAction == 0 && current.gameAction == 1);
 }
 
 split
